@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	models "../models"
 )
@@ -51,16 +52,28 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 func AddNewPost(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	var post *models.Posts
 	ReceiveJSON(r, &post)
-	st, err1 := db.Prepare(`INSERT INTO Posts (AuthorID,Title,Content, CreationDate) VALUES (?,?,?,?)`)
+
+	var user models.Users
+	rows2 := db.QueryRow(`SELECT * FROM Users WHERE ID = $1`, post.AuthorID)
+	err2 := rows2.Scan(&user.ID, &user.Email, &user.Nickname, &user.Password, &user.RoleID)
+	post.AuthorNick = user.Nickname
+	if err2 != nil {
+		fmt.Println("GetAllPosts2 rows.Scan ERROR:", err2)
+		http.Error(w, err2.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	post.CreationDate = time.Now().Format("02/01/2006 15:04:05")
+	st, err1 := db.Prepare(`INSERT INTO Posts (AuthorID,Title,Content, CreationDate, AuthorNick) VALUES (?,?,?,?)`)
 	if err1 != nil {
 		fmt.Println("AddNewPost db.Prepare", err1)
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err2 := st.Exec(post.AuthorID, post.Title, post.Content, post.CreationDate)
-	if err2 != nil {
-		fmt.Println("AddNewPost st.Exec", err2)
-		http.Error(w, err2.Error(), http.StatusInternalServerError)
+	_, err3 := st.Exec(post.AuthorID, post.Title, post.Content, post.CreationDate, post.AuthorNick)
+	if err3 != nil {
+		fmt.Println("AddNewPost st.Exec", err3)
+		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -76,6 +89,16 @@ func GetPostByID(db *sql.DB, w http.ResponseWriter, r *http.Request, postID int)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	var user models.Users
+	rows2 := db.QueryRow(`SELECT * FROM Users WHERE ID = $1`, post.AuthorID)
+	err2 := rows2.Scan(&user.ID, &user.Email, &user.Nickname, &user.Password, &user.RoleID)
+	post.AuthorNick = user.Nickname
+	if err2 != nil {
+		fmt.Println("GetAllPosts2 rows.Scan ERROR:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	SendJSON(w, post)
 }
 
@@ -83,6 +106,18 @@ func GetPostByID(db *sql.DB, w http.ResponseWriter, r *http.Request, postID int)
 func EditPostByID(db *sql.DB, w http.ResponseWriter, r *http.Request, postID int) {
 	var new *models.Posts
 	ReceiveJSON(r, &new)
+	new.CreationDate = time.Now().Format("02/01/2006 15:04:05")
+
+	var user models.Users
+	rows := db.QueryRow(`SELECT * FROM Users WHERE ID = $1`, new.AuthorID)
+	err := rows.Scan(&user.ID, &user.Email, &user.Nickname, &user.Password, &user.RoleID)
+	new.AuthorNick = user.Nickname
+	if err != nil {
+		fmt.Println("GetAllPosts2 rows.Scan ERROR:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	st, err2 := db.Prepare(`UPDATE Posts SET AuthorID = ?, Title = ?, Content = ?, CreationDate = ? WHERE ID = ?`)
 	if err2 != nil {
 		fmt.Println("EditPostByID db.Prepare:", err2)
@@ -149,6 +184,18 @@ func GetPostsByCategoryID(db *sql.DB, w http.ResponseWriter, r *http.Request, ca
 			return
 		}
 		Posts = append(Posts, post)
+	}
+
+	var user models.Users
+	for _, v := range Posts {
+		rows := db.QueryRow(`SELECT * FROM Users WHERE ID = $1`, v.AuthorID)
+		err := rows.Scan(&user.ID, &user.Email, &user.Nickname, &user.Password, &user.RoleID)
+		v.AuthorNick = user.Nickname
+		if err != nil {
+			fmt.Println("GetPosts2 rows.Scan ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 	SendJSON(w, Posts)
 }
