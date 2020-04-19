@@ -3,39 +3,66 @@ package mplx
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	dbase "../dbase"
 )
 
+// Multiplexer ...
 func Multiplexer(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("multi")
 	db, err := dbase.Create("forumDB")
-	defer db.Close()
+	//defer db.Close()
 	if err != nil {
-		fmt.Println("sql.Open ERROR:", err)
+		fmt.Println("Failed to open/create DB:", err)
+		return
 	}
 
-	// p := r.URL.Path
-	// m := r.Method
+	p := r.URL.Path
+	m := r.Method
 
-	// if p == "/api/user" {
-	// 	if m == "GET" {
-	// 		dbase.GetAllUsers(db, w, r)
-	// 	} else if m == "POST" {
-	// 		dbase.AddNewUser(db, w, r)
-	// 	}
-	// } else if p[0:9] == "/api/user" && len(p) > 9 {
-	// 	userID, err := strconv.Atoi(p[10:])
-	// 	if err != nil {
-	// 		fmt.Println("USER Atoi ERROR:", err.Error())
-	// 	}
-	// 	if m == "GET" {
-	// 		dbase.GetUserByID(db, w, r, userID)
-	// 	} else if m == "PUT" {
-	// 		dbase.EditUserByID(db, w, r, userID)
-	// 	} else if m == "DELETE" {
-	// 		dbase.DeleteUserByID(db, w, r, userID)
-	// 	}
+	if p == "/api/user" {
+		if m == "GET" {
+			dbase.GetAllUsers(db, w, r)
+		} else if m == "POST" {
+			dbase.AddNewUser(db, w, r)
+		}
+	} else if len(p) > 17 && p[0:17] == "/api/user/roleid/" && m == "GET" {
+		roleID, err := strconv.Atoi(p[17:])
+		if err != nil {
+			fmt.Println("USER Atoi ERROR:", err.Error())
+		}
+		dbase.GetUsersByRoleID(db, w, r, roleID)
+	} else if len(p) > 10 && p[0:10] == "/api/user/" {
+		userID, err := strconv.Atoi(p[10:])
+		if err != nil {
+			fmt.Println("USER Atoi ERROR:", err.Error())
+		}
+		if m == "GET" {
+			dbase.GetUserByID(db, w, r, userID)
+		} else if m == "PUT" {
+			dbase.EditUserByID(db, w, r, userID)
+		} else if m == "DELETE" {
+			dbase.DeleteUserByID(db, w, r, userID)
+		}
+	}
+
+	if p == "/api/role" {
+		if m == "GET" {
+			dbase.GetAllRoles(db, w, r)
+		} else if m == "POST" {
+			dbase.AddNewRole(db, w, r)
+		}
+	} else if len(p) > 10 && p[0:10] == "/api/role/" {
+		roleID, err := strconv.Atoi(p[10:])
+		if err != nil {
+			fmt.Println("USER Atoi ERROR:", err.Error())
+		}
+		if m == "PUT" {
+			dbase.EditRoleByID(db, w, r, roleID)
+		} else if m == "DELETE" {
+			dbase.DeleteRoleByID(db, w, r, roleID)
+		}
+	}
 	// } else if p == "/api/post" {
 	// 	if m == "GET" {
 	// 		dbase.GetAllPosts(db, w, r)

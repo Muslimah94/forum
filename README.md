@@ -8,6 +8,17 @@ POST: add new user
 GET: get user by ID
 PUT: edit user by ID
 DELETE: delete user by ID
+----------------------------
+/api/user/roleid/id:
+GET: get users by role ID
+--------------------------------------------------------
+/api/role:
+GET: get all roles
+POST: add new role
+----------------------------
+/api/role/id:
+PUT: edit role by ID
+DELETE: delete role by ID
 --------------------------------------------------------
 /api/post:
 GET: get all posts

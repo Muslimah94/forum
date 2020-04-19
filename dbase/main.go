@@ -2,13 +2,15 @@ package dbase
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Create function creates or opens DB (if it's already exists)
 func Create(DBname string) (*sql.DB, error) {
-	fmt.Println("here")
 	db, err := sql.Open("sqlite3", "./"+DBname)
 	if err != nil {
 		fmt.Println("Create sql.Open:", err)
@@ -98,4 +100,28 @@ func Create(DBname string) (*sql.DB, error) {
 		return nil, err9
 	}
 	return db, nil
+}
+
+// SendJSON function marshals and sends given data to response writer
+func SendJSON(v interface{}) {
+	var w http.ResponseWriter
+	data, err := json.Marshal(v)
+	if err != nil {
+		fmt.Println("SendJson json.Marshal ERROR:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+// ReceiveJSON function decodes data from request
+func ReceiveJSON(r *http.Request, v interface{}) {
+	var w http.ResponseWriter
+	err1 := json.NewDecoder(r.Body).Decode(v)
+	if err1 != nil {
+		fmt.Println("ReceiveJSON: Failed to Decode", err1)
+		http.Error(w, err1.Error(), http.StatusBadRequest)
+		return
+	}
 }

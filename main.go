@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/api", mplx.Multiplexer)
+	http.HandleFunc("/api/", mplx.Multiplexer)
 
-	fmt.Println("server is listening to port :8080....")
+	fmt.Println("Server is listening to port :8080...")
 	http.ListenAndServe(":8080", nil)
 }
