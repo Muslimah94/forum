@@ -62,49 +62,46 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 			dbase.DeleteRoleByID(db, w, r, roleID)
 		}
 	}
-	//-----------------------------------------------------
-	// } else if p == "/api/post" {
-	// 	if m == "GET" {
-	// 		dbase.GetAllPosts(db, w, r)
-	// 	} else if m == "POST" {
-	// 		dbase.AddNewPost(db, w, r)
-	// 	}
-	// } else if p[0:9] == "/api/post" && len(p) > 9 {
-	// 	postID, err := strconv.Atoi(p[10:])
-	// 	if err != nil {
-	// 		fmt.Println("USER Atoi ERROR:", err.Error())
-	// 	}
-	// 	if m == "GET" {
-	// 		dbase.GetPostByID(db, w, r, postID)
-	// 	} else if m == "PUT" {
-	// 		dbase.EditPostByID(db, w, r, postID)
-	// 	} else if m == "DELETE" {
-	// 		dbase.DeletePostByID(db, w, r, postID)
-	// 	}
-	// } else if p[0:12] == "/api/comment" && len(p) > 12 {
-	// 	if p[0:19] == "/api/comment/postID" {
-	// 		postID, err := strconv.Atoi(p[20:])
-	// 		if err != nil {
-	// 			fmt.Println("Comment Atoi Error:", err.Error())
-	// 		}
-	// 		if m == "GET" {
-	// 			dbase.GetAllCommentsToPost(db, w, r, postID)
-	// 		} else if m == "POST" {
-	// 			dbase.AddNewCommentToPost(db, w, r, postID)
-	// 		}
-	// 	} else if p[0:22] == "/api/comment/commentID" {
-	// 		commentID, err := strconv.Atoi(p[23:])
-	// 		if err != nil {
-	// 			fmt.Println("Comment Atoi Error:", err.Error())
-	// 		}
-	// 		if m == "GET" {
-	// 			dbase.GetCommentByID(db, w, r, commentID)
-	// 		} else if m == "PUT" {
-	// 			dbase.EditCommentByID(db, w, r, commentID)
-	// 		} else if m == "DELETE" {
-	// 			dbase.DeleteCommentByID(db, w, r, commentID)
-	// 		}
-	// 	}
+	//----------POST---------------------------------------
+	if p == "/api/post" {
+		if m == "GET" {
+			dbase.GetAllPosts(db, w, r)
+		} else if m == "POST" {
+			dbase.AddNewPost(db, w, r)
+		}
+	} else if p[0:10] == "/api/post/" && len(p) > 10 {
+		postID, err := strconv.Atoi(p[10:])
+		if err != nil {
+			fmt.Println("USER Atoi ERROR:", err.Error())
+		}
+		if m == "GET" {
+			dbase.GetPostByID(db, w, r, postID)
+		} else if m == "PUT" {
+			dbase.EditPostByID(db, w, r, postID)
+		} else if m == "DELETE" {
+			dbase.DeletePostByID(db, w, r, postID)
+		}
+	}
+	//----------COMMENT------------------------------------
+	if p == "/api/comment" {
+		if m == "GET" {
+			dbase.GetAllComments(db, w, r)
+		} else if m == "POST" {
+			dbase.AddNewComment(db, w, r)
+		}
+	} else if len(p) > 13 && p[0:13] == "/api/comment/" {
+		commentID, err := strconv.Atoi(p[13:])
+		if err != nil {
+			fmt.Println("Comment Atoi Error:", err.Error())
+		}
+		if m == "GET" {
+			dbase.GetCommentByID(db, w, r, commentID)
+		} else if m == "PUT" {
+			dbase.EditCommentByID(db, w, r, commentID)
+		} else if m == "DELETE" {
+			dbase.DeleteCommentByID(db, w, r, commentID)
+		}
+	}
 
 	// } else if p == "/api/reaction" {
 	// 	//DBinteraction.AddReaction(db, w, r)
