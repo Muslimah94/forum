@@ -7,8 +7,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func Create(DBname string) (*DB, error) {
-
+func Create(DBname string) (*sql.DB, error) {
+	fmt.Println("here")
 	db, err := sql.Open("sqlite3", "./"+DBname)
 	if err != nil {
 		fmt.Println("Create sql.Open:", err)
@@ -88,7 +88,7 @@ func Create(DBname string) (*DB, error) {
 		fmt.Println("Failed to create Sessions table:", err8)
 		return nil, err8
 	}
-	_, err9 := db.Exec(`CREATE TABLE PostsCategories (
+	_, err9 := db.Exec(`CREATE TABLE IF NOT EXISTS PostsCategories (
 		PostID	INTEGER NOT NULL,
 		CategoryID	INTEGER NOT NULL,
 		FOREIGN KEY(CategoryID) REFERENCES Categories(ID) ON DELETE CASCADE,
