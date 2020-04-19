@@ -76,7 +76,7 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("USER Atoi ERROR:", err.Error())
 		}
 		dbase.GetPostsByCategoryID(db, w, r, categoryID)
-	} else if p[0:10] == "/api/post/" && len(p) > 10 {
+	} else if len(p) > 10 && p[0:10] == "/api/post/" {
 		postID, err := strconv.Atoi(p[10:])
 		if err != nil {
 			fmt.Println("USER Atoi ERROR:", err.Error())

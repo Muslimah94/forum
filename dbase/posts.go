@@ -32,6 +32,18 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	var user models.Users
+	for _, v := range AllPosts {
+		rows := db.QueryRow(`SELECT * FROM Users WHERE ID = $1`, v.AuthorID)
+		err := rows.Scan(&user.ID, &user.Email, &user.Nickname, &user.Password, &user.RoleID)
+		v.AuthorNick = user.Nickname
+		if err != nil {
+			fmt.Println("GetAllPosts2 rows.Scan ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 	SendJSON(w, AllPosts)
 }
 

@@ -28,6 +28,7 @@ type Posts struct {
 	Title        string `json:"title"`
 	Content      string `json:"content"`
 	CreationDate string `json:"creation_date"`
+	AuthorNick   string `json:"author_nick"`
 }
 
 // Comments ...
