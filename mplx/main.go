@@ -16,10 +16,9 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Failed to open/create DB:", err)
 		return
 	}
-
 	p := r.URL.Path
 	m := r.Method
-
+	//----------USER---------------------------------------
 	if p == "/api/user" {
 		if m == "GET" {
 			dbase.GetAllUsers(db, w, r)
@@ -45,7 +44,7 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 			dbase.DeleteUserByID(db, w, r, userID)
 		}
 	}
-
+	//----------ROLE---------------------------------------
 	if p == "/api/role" {
 		if m == "GET" {
 			dbase.GetAllRoles(db, w, r)
@@ -63,6 +62,7 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 			dbase.DeleteRoleByID(db, w, r, roleID)
 		}
 	}
+	//-----------------------------------------------------
 	// } else if p == "/api/post" {
 	// 	if m == "GET" {
 	// 		dbase.GetAllPosts(db, w, r)

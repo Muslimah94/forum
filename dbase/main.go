@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	// sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -86,7 +86,7 @@ func EditUserByID(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int
 		http.Error(w, err2.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err3 := st.Exec(new.Email, new.Nickname, new.Password, userID)
+	_, err3 := st.Exec(new.Email, new.Nickname, new.Password, new.RoleID, userID)
 	if err3 != nil {
 		fmt.Println("EditUserByID st.Exec:", err3)
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
@@ -113,7 +113,7 @@ func DeleteUserByID(db *sql.DB, w http.ResponseWriter, r *http.Request, userID i
 
 // GetUsersByRoleID ...
 func GetUsersByRoleID(db *sql.DB, w http.ResponseWriter, r *http.Request, roleID int) {
-	rows, err1 := db.Query(`SELECT * FROM Users WHERE RoleID = ?`)
+	rows, err1 := db.Query(`SELECT * FROM Users WHERE RoleID = ?`, roleID)
 	if err1 != nil {
 		fmt.Println("GetUsersByRoleID db.Query ERROR:", err1)
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
