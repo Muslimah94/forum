@@ -32,7 +32,7 @@ func GetAllUsers(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
-	SendJSON(AllUsers)
+	SendJSON(w, AllUsers)
 }
 
 // AddNewUser ...
@@ -48,7 +48,7 @@ func AddNewUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// est' li net , redirect
 
 	var user *models.Users
-	ReceiveJSON(r, user)
+	ReceiveJSON(r, &user)
 	st, err2 := db.Prepare(`INSERT INTO Users (Email, Nickname, Password, RoleID) VALUES (?,?,?,?)`)
 	if err2 != nil {
 		fmt.Println("AddNewUser db.Prepare", err2)
@@ -73,13 +73,13 @@ func GetUserByID(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	SendJSON(user)
+	SendJSON(w, user)
 }
 
 // EditUserByID ...
 func EditUserByID(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int) {
 	var new *models.Users
-	ReceiveJSON(r, new)
+	ReceiveJSON(r, &new)
 	st, err2 := db.Prepare(`UPDATE Users SET Email = ?, Nickname = ?, Password = ?, RoleID = ? where ID = ?`)
 	if err2 != nil {
 		fmt.Println("EditUserByID db.Prepare:", err2)
@@ -135,5 +135,5 @@ func GetUsersByRoleID(db *sql.DB, w http.ResponseWriter, r *http.Request, roleID
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
-	SendJSON(AllUsers)
+	SendJSON(w, AllUsers)
 }

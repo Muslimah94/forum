@@ -32,7 +32,7 @@ func GetAllRoles(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
-	SendJSON(AllRoles)
+	SendJSON(w, &AllRoles)
 }
 
 // AddNewRole ...
