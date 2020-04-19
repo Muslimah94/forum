@@ -27,7 +27,10 @@ POST: add new post
 /api/post/id:
 GET: get post by ID
 PUT: edit post by ID
-DELETE: delete post by ID 
+DELETE: delete post by ID
+----------------------------
+/api/post/categoryid/id:
+GET: get posts by category ID
 --------------------------------------------------------
 /api/comment/postID/id:
 GET: get all comments to post

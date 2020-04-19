@@ -52,6 +52,7 @@ func Create(DBname string) (*sql.DB, error) {
 		AuthorID	INTEGER NOT NULL,
 		Title	TEXT NOT NULL,
 		Content	TEXT NOT NULL,
+		CreationDate TEXT NOT NULL,
 		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE)`)
 	if err5 != nil {
 		fmt.Println("Failed to create Posts table:", err5)

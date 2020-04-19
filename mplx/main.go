@@ -18,6 +18,7 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 	}
 	p := r.URL.Path
 	m := r.Method
+
 	//----------USER---------------------------------------
 	if p == "/api/user" {
 		if m == "GET" {
@@ -69,6 +70,12 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 		} else if m == "POST" {
 			dbase.AddNewPost(db, w, r)
 		}
+	} else if len(p) > 22 && p[0:22] == "/api/post/categoryid/" && m == "GET" {
+		categoryID, err := strconv.Atoi(p[22:])
+		if err != nil {
+			fmt.Println("USER Atoi ERROR:", err.Error())
+		}
+		dbase.GetPostsByCategoryID(db, w, r, categoryID)
 	} else if p[0:10] == "/api/post/" && len(p) > 10 {
 		postID, err := strconv.Atoi(p[10:])
 		if err != nil {
