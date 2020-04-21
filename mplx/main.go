@@ -70,7 +70,7 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 		if m == "GET" {
 			dbase.GetAllPosts(db, w, r)
 		} else if m == "POST" {
-			dbase.AddNewPost(db, w, r)
+			//dbase.AddNewPost(db, w, r)
 		}
 	} else if len(p) > 22 && p[0:22] == "/api/post/categoryid/" && m == "GET" {
 		// categoryID, err := strconv.Atoi(p[22:])

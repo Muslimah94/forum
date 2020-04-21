@@ -32,6 +32,7 @@ type Posts struct {
 	Categories   []string `json:"categories"`
 	Likes        int      `json:"likes"`
 	Dislikes     int      `json:"dislikes"`
+	Comments     int      `json:"comments"`
 }
 
 // Comments ...
