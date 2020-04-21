@@ -70,14 +70,14 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	// --------------------------------------------------------------
 	for i := 0; i < len(AllPosts); i++ {
-		rows3, err6 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 1 AND WHERE PostID = ?`, AllPosts[i].ID)
+		rows3, err6 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 1 AND PostID = ?`, AllPosts[i].ID)
 		if err6 != nil {
 			fmt.Println("GetAllPosts3 db.Query ERROR:", err6)
 			http.Error(w, err6.Error(), http.StatusInternalServerError)
 			return
 		}
 		for rows3.Next() {
-			err7 := rows3.Scan(AllPosts[i].Likes)
+			err7 := rows3.Scan(&AllPosts[i].Likes)
 			if err7 != nil {
 				fmt.Println("GetAllPosts3 rows.Scan ERROR:", err7)
 				continue
@@ -91,16 +91,18 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	// --------------------------------------------------------------
 	for i := 0; i < len(AllPosts); i++ {
-		rows4, err9 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 0 AND WHERE PostID = ?`, AllPosts[i].ID)
+		rows4, err9 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 0 AND PostID = ?`, AllPosts[i].ID)
 		if err9 != nil {
 			fmt.Println("GetAllPosts4 db.Query ERROR:", err9)
 			http.Error(w, err9.Error(), http.StatusInternalServerError)
 			return
 		}
-		err10 := rows4.Scan(AllPosts[i].Dislikes)
-		if err10 != nil {
-			fmt.Println("GetAllPosts4 rows.Scan ERROR:", err10)
-			continue
+		for rows4.Next() {
+			err10 := rows4.Scan(&AllPosts[i].Dislikes)
+			if err10 != nil {
+				fmt.Println("GetAllPosts4 rows.Scan ERROR:", err10)
+				continue
+			}
 		}
 
 	}
