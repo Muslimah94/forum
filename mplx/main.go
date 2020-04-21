@@ -71,22 +71,22 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 			dbase.AddNewPost(db, w, r)
 		}
 	} else if len(p) > 22 && p[0:22] == "/api/post/categoryid/" && m == "GET" {
-		categoryID, err := strconv.Atoi(p[22:])
-		if err != nil {
-			fmt.Println("USER Atoi ERROR:", err.Error())
-		}
-		dbase.GetPostsByCategoryID(db, w, r, categoryID)
+		// categoryID, err := strconv.Atoi(p[22:])
+		// if err != nil {
+		// 	fmt.Println("USER Atoi ERROR:", err.Error())
+		// }
+		//dbase.GetPostsByCategoryID(db, w, r, categoryID)
 	} else if len(p) > 10 && p[0:10] == "/api/post/" {
-		postID, err := strconv.Atoi(p[10:])
-		if err != nil {
-			fmt.Println("USER Atoi ERROR:", err.Error())
-		}
+		//postID, err := strconv.Atoi(p[10:])
+		// if err != nil {
+		// 	fmt.Println("USER Atoi ERROR:", err.Error())
+		// }
 		if m == "GET" {
-			dbase.GetPostByID(db, w, r, postID)
+			//dbase.GetPostByID(db, w, r, postID)
 		} else if m == "PUT" {
-			dbase.EditPostByID(db, w, r, postID)
+			//dbase.EditPostByID(db, w, r, postID)
 		} else if m == "DELETE" {
-			dbase.DeletePostByID(db, w, r, postID)
+			//dbase.DeletePostByID(db, w, r, postID)
 		}
 	}
 	//----------COMMENT------------------------------------
@@ -110,6 +110,13 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if p == "/api/category" && m == "POST" {
+		dbase.AddNewCategory(db, w, r)
+	}
+
+	if p == "/api/postscategory" && m == "POST" {
+		dbase.AddPostCategories(db, w, r)
+	}
 	// } else if p == "/api/reaction" {
 	// 	//DBinteraction.AddReaction(db, w, r)
 	// } else if p[0:14] == "/api/reaction/" && len(p) > 14 {

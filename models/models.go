@@ -27,8 +27,11 @@ type Posts struct {
 	AuthorID     int    `json:"author_id"`
 	Title        string `json:"title"`
 	Content      string `json:"content"`
-	CreationDate string `json:"creation_date"`
-	AuthorNick   string `json:"author_nick"`
+	CreationDate int64
+	AuthorNick   string
+	Categories   []string
+	Likes        int
+	Dislikes     int
 }
 
 // Comments ...
@@ -50,6 +53,7 @@ type Reactions struct {
 
 // PostsCategories ...
 type PostsCategories struct {
-	PostID     int `json:"post_id"`
-	CategoryID int `json:"category_id"`
+	PostID       int `json:"post_id"`
+	CategoryID   int `json:"category_id"`
+	CategoryName string
 }
