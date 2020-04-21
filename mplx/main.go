@@ -10,6 +10,8 @@ import (
 
 // Multiplexer ...
 func Multiplexer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	db, err := dbase.Create("forumDB")
 	//defer db.Close()
 	if err != nil {
@@ -117,22 +119,24 @@ func Multiplexer(w http.ResponseWriter, r *http.Request) {
 	if p == "/api/postscategory" && m == "POST" {
 		dbase.AddPostCategories(db, w, r)
 	}
-	// } else if p == "/api/reaction" {
-	// 	//DBinteraction.AddReaction(db, w, r)
-	// } else if p[0:14] == "/api/reaction/" && len(p) > 14 {
-	// 	if p[0:19] == "/api/reaction/post/" {
-	// 		postID, err := strconv.Atoi(p[19:])
-	// 		if err != nil {
-	// 			fmt.Println("USER Atoi ERROR:", err.Error())
-	// 		}
-	// 		if m == "GET" {
-	// 			fmt.Println("postID:", postID)
-	// 			dbase.GetAllReactionsToPost(db, w, r, postID)
-	// 		}
-	// 	} else if p[0:22] == "/api/reaction/comment/" {
 
-	// 	} else if p[0:14] == "/api/reaction/" {
-	// 	}
-	// }
+	if p == "/api/like" {
+		// 	//DBinteraction.AddReaction(db, w, r)
+		// } else if p[0:14] == "/api/reaction/" && len(p) > 14 {
+		// 	if p[0:19] == "/api/reaction/post/" {
+		// 		postID, err := strconv.Atoi(p[19:])
+		// 		if err != nil {
+		// 			fmt.Println("USER Atoi ERROR:", err.Error())
+		// 		}
+		// 		if m == "GET" {
+		// 			fmt.Println("postID:", postID)
+		// 			dbase.GetAllReactionsToPost(db, w, r, postID)
+		// 		}
+		// 	} else if p[0:22] == "/api/reaction/comment/" {
 
+		// 	} else if p[0:14] == "/api/reaction/" {
+		// 	}
+		// }
+
+	}
 }

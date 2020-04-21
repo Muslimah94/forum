@@ -12,64 +12,104 @@ import (
 // GetAllPosts ...
 func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
-	rows, err1 := db.Query(`SELECT Posts.ID, Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
+	rows, err := db.Query(`SELECT Posts.ID, Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
 	Users ON Posts.AuthorID = Users.ID`)
-	if err1 != nil {
-		fmt.Println("GetAllPosts db.Query ERROR:", err1)
-		http.Error(w, err1.Error(), http.StatusInternalServerError)
+	if err != nil {
+		fmt.Println("GetAllPosts db.Query ERROR:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	var AllPosts []models.Posts
 	for rows.Next() {
 		var p models.Posts
-		err2 := rows.Scan(&p.ID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
-		if err2 != nil {
-			fmt.Println("GetAllPosts rows.Scan ERROR:", err2)
+		err1 := rows.Scan(&p.ID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
+		if err1 != nil {
+			fmt.Println("GetAllPosts rows.Scan ERROR:", err1)
 			continue
 		}
 		AllPosts = append(AllPosts, p)
 	}
-	if err3 := rows.Err(); err3 != nil {
-		fmt.Println("GetAllPosts rows ERROR:", err3)
-		http.Error(w, err3.Error(), http.StatusInternalServerError)
+	if err2 := rows.Err(); err2 != nil {
+		fmt.Println("GetAllPosts rows ERROR:", err2)
+		http.Error(w, err2.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// --------------------------------------------------------------
-	rows2, err1 := db.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
+	rows2, err3 := db.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
 	Categories ON PostsCategories.CategoryID = Categories.ID`)
-	if err1 != nil {
-		fmt.Println("GetAllPostsCat db.Query ERROR:", err1)
-		http.Error(w, err1.Error(), http.StatusInternalServerError)
+	if err3 != nil {
+		fmt.Println("GetAllPosts2 db.Query ERROR:", err3)
+		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
 	var pc []models.PostsCategories
 	for rows2.Next() {
 		var p models.PostsCategories
-		err2 := rows2.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
-		if err2 != nil {
-			fmt.Println("GetAllPostsCat rows.Scan ERROR:", err2)
+		err4 := rows2.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
+		if err4 != nil {
+			fmt.Println("GetAllPosts2 rows.Scan ERROR:", err4)
 			continue
 		}
 		pc = append(pc, p)
 	}
-	if err3 := rows.Err(); err3 != nil {
-		fmt.Println("GetAllPostsCat rows ERROR:", err3)
-		http.Error(w, err3.Error(), http.StatusInternalServerError)
+	if err5 := rows.Err(); err5 != nil {
+		fmt.Println("GetAllPosts2 rows ERROR:", err5)
+		http.Error(w, err5.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	for _, v := range AllPosts {
-		fmt.Println("v.Cat:", v.Categories)
+	for i := 0; i < len(AllPosts); i++ {
 		ar := []string{}
-		for _, g := range pc {
-			if v.ID == g.PostID {
-				ar = append(ar, g.CategoryName)
+		for j := 0; j < len(pc); j++ {
+			if AllPosts[i].ID == pc[j].PostID {
+				ar = append(ar, pc[j].CategoryName)
 			}
 		}
-		v.Categories = ar
-		fmt.Println("v.Cat after:", v.Categories)
+		AllPosts[i].Categories = ar
 	}
+	// --------------------------------------------------------------
+	for i := 0; i < len(AllPosts); i++ {
+		rows3, err6 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 1 AND WHERE PostID = ?`, AllPosts[i].ID)
+		if err6 != nil {
+			fmt.Println("GetAllPosts3 db.Query ERROR:", err6)
+			http.Error(w, err6.Error(), http.StatusInternalServerError)
+			return
+		}
+		for rows3.Next() {
+			err7 := rows3.Scan(AllPosts[i].Likes)
+			if err7 != nil {
+				fmt.Println("GetAllPosts3 rows.Scan ERROR:", err7)
+				continue
+			}
+		}
+	}
+	if err8 := rows.Err(); err8 != nil {
+		fmt.Println("GetAllPosts3 rows ERROR:", err8)
+		http.Error(w, err8.Error(), http.StatusInternalServerError)
+		return
+	}
+	// --------------------------------------------------------------
+	for i := 0; i < len(AllPosts); i++ {
+		rows4, err9 := db.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = 0 AND WHERE PostID = ?`, AllPosts[i].ID)
+		if err9 != nil {
+			fmt.Println("GetAllPosts4 db.Query ERROR:", err9)
+			http.Error(w, err9.Error(), http.StatusInternalServerError)
+			return
+		}
+		err10 := rows4.Scan(AllPosts[i].Dislikes)
+		if err10 != nil {
+			fmt.Println("GetAllPosts4 rows.Scan ERROR:", err10)
+			continue
+		}
+
+	}
+	if err11 := rows.Err(); err11 != nil {
+		fmt.Println("GetAllPosts4 rows ERROR:", err11)
+		http.Error(w, err11.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	SendJSON(w, AllPosts)
 }
 

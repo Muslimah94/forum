@@ -1,7 +1,29 @@
 # forum
-
+/api/category POST: add new category
+--------------------------------------------------------
+/api/postscategory POST: assign categories to post
+--------------------------------------------------------
 /api/user:
 GET: get all users
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 POST: add new user
 ----------------------------
 /api/user/id:
