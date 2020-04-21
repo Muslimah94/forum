@@ -107,6 +107,7 @@ func Create(DBname string) (*sql.DB, error) {
 // SendJSON function marshals and sends given data to response writer
 func SendJSON(w http.ResponseWriter, v interface{}) {
 	data, err := json.Marshal(v)
+	//err := json.NewEncoder(w).Encode(v)
 	if err != nil {
 		fmt.Println("SendJSON json.Marshal ERROR:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -23,15 +23,15 @@ type Categories struct {
 
 // Posts ...
 type Posts struct {
-	ID           int    `json:"id"`
-	AuthorID     int    `json:"author_id"`
-	Title        string `json:"title"`
-	Content      string `json:"content"`
-	CreationDate int64
-	AuthorNick   string
-	Categories   []string
-	Likes        int
-	Dislikes     int
+	ID           int      `json:"id"`
+	AuthorID     int      `json:"author_id"`
+	Title        string   `json:"title"`
+	Content      string   `json:"content"`
+	CreationDate int64    `json:"creation_date"`
+	AuthorNick   string   `json:"author_nick"`
+	Categories   []string `json:"categories"`
+	Likes        int      `json:"likes"`
+	Dislikes     int      `json:"dislikes"`
 }
 
 // Comments ...

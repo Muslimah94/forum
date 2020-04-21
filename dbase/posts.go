@@ -12,7 +12,7 @@ import (
 // GetAllPosts ...
 func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
-	rows, err1 := db.Query(`SELECT Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
+	rows, err1 := db.Query(`SELECT Posts.ID, Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
 	Users ON Posts.AuthorID = Users.ID`)
 	if err1 != nil {
 		fmt.Println("GetAllPosts db.Query ERROR:", err1)
@@ -22,7 +22,7 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	var AllPosts []models.Posts
 	for rows.Next() {
 		var p models.Posts
-		err2 := rows.Scan(&p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
+		err2 := rows.Scan(&p.ID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
 		if err2 != nil {
 			fmt.Println("GetAllPosts rows.Scan ERROR:", err2)
 			continue
@@ -58,14 +58,17 @@ func GetAllPosts(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err3.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	for _, v := range AllPosts {
-		var ar []string
+		fmt.Println("v.Cat:", v.Categories)
+		ar := []string{}
 		for _, g := range pc {
 			if v.ID == g.PostID {
 				ar = append(ar, g.CategoryName)
 			}
 		}
 		v.Categories = ar
+		fmt.Println("v.Cat after:", v.Categories)
 	}
 	SendJSON(w, AllPosts)
 }
