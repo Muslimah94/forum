@@ -37,10 +37,13 @@ type Posts struct {
 
 // Comments ...
 type Comments struct {
-	ID       int    `json:"id"`
-	AuthorID int    `json:"author_id"`
-	PostID   int    `json:"post_id"`
-	Content  string `json:"content"`
+	ID         int    `json:"id"`
+	AuthorID   int    `json:"author_id"`
+	PostID     int    `json:"post_id"`
+	Content    string `json:"content"`
+	AuthorNick string `json:"author_nick"`
+	Likes      int    `json:"likes"`
+	Dislikes   int    `json:"dislikes"`
 }
 
 // Reactions ...
@@ -53,8 +56,10 @@ type Reactions struct {
 }
 
 // PostsCategories ...
-type PostsCategories struct {
+type PostCategories struct {
 	PostID       int `json:"post_id"`
 	CategoryID   int `json:"category_id"`
 	CategoryName string
 }
+
+//

@@ -1,10 +1,21 @@
-# forum
-/api/category POST: add new category
---------------------------------------------------------
-/api/postscategory POST: assign categories to post
---------------------------------------------------------
+# forum\
+
+/api/post [GET] get all posts
+/api/post/id [GET] get post by post id
+/api/comment/(postid) [GET] get all comments to post by post id
+/api/comment [POST] write a new comment to post by post id
+/api/categories [GET] get names of categories !!! NOT READY !!!
+
+
+
+
 /api/user:
 GET: get all users
+
+get post by id
+get all comments by post id
+
+
 
 
 

@@ -2,16 +2,18 @@ package dbase
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"net/http"
 
-	// sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type DataBase struct {
+	DB *sql.DB
+}
+
 // Create function creates or opens DB (if it's already exists)
-func Create(DBname string) (*sql.DB, error) {
+func Create(DBname string) (*DataBase, error) {
+
 	db, err := sql.Open("sqlite3", "./"+DBname)
 	if err != nil {
 		fmt.Println("Create sql.Open:", err)
@@ -101,29 +103,6 @@ func Create(DBname string) (*sql.DB, error) {
 		fmt.Println("Failed to create PostsCategories table:", err9)
 		return nil, err9
 	}
-	return db, nil
-}
-
-// SendJSON function marshals and sends given data to response writer
-func SendJSON(w http.ResponseWriter, v interface{}) {
-	data, err := json.Marshal(v)
-	//err := json.NewEncoder(w).Encode(v)
-	if err != nil {
-		fmt.Println("SendJSON json.Marshal ERROR:", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
-}
-
-// ReceiveJSON function decodes data from request
-func ReceiveJSON(r *http.Request, v interface{}) {
-	var w http.ResponseWriter
-	err1 := json.NewDecoder(r.Body).Decode(v)
-	if err1 != nil {
-		fmt.Println("ReceiveJSON: Failed to Decode", err1)
-		http.Error(w, err1.Error(), http.StatusBadRequest)
-		return
-	}
+	database := DataBase{DB: db}
+	return &database, nil
 }
