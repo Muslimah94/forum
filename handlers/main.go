@@ -118,3 +118,9 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	ReceiveJSON(r, &new)
 	db.CreatePost(new)
 }
+
+func React(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	var new models.Reactions
+	ReceiveJSON(r, &new)
+	db.CreateReaction(new)
+}

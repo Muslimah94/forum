@@ -6,7 +6,7 @@
 /api/comment/(postid) [GET] get all comments to post by post id
 /api/comment [POST] write a new comment to post by post id
 /api/categories [GET] get names of categories !!! NOT READY !!!
-
+/api/reaction [POST] add like/dislike to DB (if like type=1, else type=0)
 
 
 

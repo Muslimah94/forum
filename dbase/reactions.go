@@ -2,6 +2,8 @@ package dbase
 
 import (
 	"fmt"
+
+	models "../models"
 )
 
 func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
@@ -44,4 +46,19 @@ func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 		return 0, err
 	}
 	return num, nil
+}
+
+func (db *DataBase) CreateReaction(new models.Reactions) error {
+	st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID, CommentID) VALUES (?,?,?,?)`)
+	defer st.Close()
+	if err != nil {
+		fmt.Println("CreateReaction Prepare", err)
+		return err
+	}
+	_, err = st.Exec(new.AuthorID, new.Type, new.PostID, new.CommentID)
+	if err != nil {
+		fmt.Println("CreateReaction Exec", err)
+		return err
+	}
+	return nil
 }
