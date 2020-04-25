@@ -20,6 +20,8 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if p == "/api/post" {
 		if m == "GET" {
 			handlers.GetAllPosts(db, w, r)
+		} else if m == "POST" {
+			handlers.NewPost(db, w, r)
 		}
 	}
 	if m == "GET" && len(p) > 10 && p[0:10] == "/api/post/" {

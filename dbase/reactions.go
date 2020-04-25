@@ -7,6 +7,7 @@ import (
 func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND PostID = ?`, t, postID)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("CountReactionsToPost Query:", err)
 		return 0, err
@@ -27,6 +28,7 @@ func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND CommentID = ?`, t, commentID)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("CountReactionsToComment Query:", err)
 		return 0, err

@@ -9,6 +9,7 @@ import (
 func (db *DataBase) SelectCategories() ([]models.PostCategories, error) {
 	rows, err := db.DB.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
 	Categories ON PostsCategories.CategoryID = Categories.ID`)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectCategories Query:", err)
 		return nil, err

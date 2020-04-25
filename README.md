@@ -1,6 +1,7 @@
 # forum\
 
 /api/post [GET] get all posts
+/api/post [POST] create new post
 /api/post/id [GET] get post by post id
 /api/comment/(postid) [GET] get all comments to post by post id
 /api/comment [POST] write a new comment to post by post id

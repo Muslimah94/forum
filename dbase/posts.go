@@ -2,6 +2,7 @@ package dbase
 
 import (
 	"fmt"
+	"time"
 
 	models "../models"
 )
@@ -10,6 +11,7 @@ func (db *DataBase) SelectPosts() ([]models.Posts, error) {
 
 	rows, err := db.DB.Query(`SELECT Posts.ID, Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
 	Users ON Posts.AuthorID = Users.ID`)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectPosts Query:", err)
 		return nil, err
@@ -37,13 +39,29 @@ func (db *DataBase) SelectPost(postID int) (models.Posts, error) {
 	var p models.Posts
 	rows := db.DB.QueryRow(`SELECT Posts.ID, AuthorID, Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
 	Users ON Posts.AuthorID = Users.ID WHERE Posts.ID = ? `, postID)
-
 	err := rows.Scan(&p.ID, &p.AuthorID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
 	if err != nil {
 		fmt.Println("SelectPost:", err)
 		return p, err
 	}
 	return p, nil
+}
+
+func (db *DataBase) CreatePost(new models.Posts) error {
+
+	d := time.Now().Unix()
+	st, err := db.DB.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
+	defer st.Close()
+	if err != nil {
+		fmt.Println("CreatePost Prepare", err)
+		return err
+	}
+	_, err = st.Exec(new.AuthorID, new.Title, new.Content, d)
+	if err != nil {
+		fmt.Println("CreatePost Exec", err)
+		return err
+	}
+	return nil
 }
 
 // // AddNewPost ...

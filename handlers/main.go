@@ -112,3 +112,9 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	ReceiveJSON(r, &new)
 	db.CreateComment(new)
 }
+
+func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	var new models.Posts
+	ReceiveJSON(r, &new)
+	db.CreatePost(new)
+}
