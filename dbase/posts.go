@@ -47,21 +47,48 @@ func (db *DataBase) SelectPost(postID int) (models.Posts, error) {
 	return p, nil
 }
 
-func (db *DataBase) CreatePost(new models.Posts) error {
-
+func (db *DataBase) CreatePost(new models.Posts) (int, error) {
+	n := 0
 	d := time.Now().Unix()
 	st, err := db.DB.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("CreatePost Prepare", err)
-		return err
+		return n, err
 	}
 	_, err = st.Exec(new.AuthorID, new.Title, new.Content, d)
 	if err != nil {
 		fmt.Println("CreatePost Exec", err)
-		return err
+		return n, err
 	}
-	return nil
+	n, err = db.ReturnLastPostID()
+	if err != nil {
+		fmt.Println("CreatePost Exec", err)
+		return n, err
+	}
+	return n, nil
+}
+
+func (db *DataBase) ReturnLastPostID() (int, error) {
+	n := 0
+	rows, err := db.DB.Query(`SELECT ID FROM Posts ORDER BY Id DESC LIMIT 1`)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("ReturnLastPostID Query:", err)
+		return n, err
+	}
+	for rows.Next() {
+		err = rows.Scan(&n)
+		if err != nil {
+			fmt.Println("ReturnLastPostID rows.Scan:", err)
+			continue
+		}
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("ReturnLastPostID rows:", err)
+		return n, err
+	}
+	return n, nil
 }
 
 // // AddNewPost ...

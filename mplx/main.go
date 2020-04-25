@@ -23,8 +23,7 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		} else if m == "POST" {
 			handlers.NewPost(db, w, r)
 		}
-	}
-	if m == "GET" && len(p) > 10 && p[0:10] == "/api/post/" {
+	} else if m == "GET" && len(p) > 10 && p[0:10] == "/api/post/" {
 		postID, err := strconv.Atoi(p[10:])
 		if err != nil {
 			fmt.Println("Atoi /api/post:", err.Error())
@@ -43,6 +42,16 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		}
 	} else if m == "POST" && p == "/api/comment" {
 		handlers.NewComment(db, w, r)
+	}
+
+	//-----------RACTIONS----------------------------------
+	if p == "/api/reaction" && m == "POST" {
+		handlers.NewReaction(db, w, r)
+	}
+
+	//-----------Categories----------------------------------
+	if p == "/api/categories" && m == "GET" {
+		handlers.GetCategories(db, w, r)
 	}
 }
 

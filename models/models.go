@@ -17,8 +17,9 @@ type Roles struct {
 
 // Categories ...
 type Categories struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID            int      `json:"id"`
+	Name          string   `json:"name"`
+	AllCategories []string `json:"all_categories"`
 }
 
 // Posts ...

@@ -116,11 +116,28 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.Posts
 	ReceiveJSON(r, &new)
-	db.CreatePost(new)
+	ID, err := db.CreatePost(new)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	for i := 0; i < len(new.Categories); i++ {
+		db.AssociateCategory(ID, new.Categories[i])
+	}
 }
 
-func React(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.Reactions
 	ReceiveJSON(r, &new)
 	db.CreateReaction(new)
+}
+
+func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	a, err := db.ReturnCategories()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	result := models.Categories{AllCategories: a}
+	SendJSON(w, &result)
 }

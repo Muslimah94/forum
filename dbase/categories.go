@@ -31,6 +31,46 @@ func (db *DataBase) SelectCategories() ([]models.PostCategories, error) {
 	return pc, nil
 }
 
+func (db *DataBase) ReturnCategories() ([]string, error) {
+	rows, err := db.DB.Query(`SELECT Name FROM Categories`)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("ReturnCategories Query:", err)
+		return nil, err
+	}
+	cat := []string{}
+	for rows.Next() {
+		var a string
+		err = rows.Scan(&a)
+		if err != nil {
+			fmt.Println("ReturnCategories rows.Scan:", err)
+			continue
+		}
+		cat = append(cat, a)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectCategories rows:", err)
+		return nil, err
+	}
+	return cat, nil
+}
+
+func (db *DataBase) AssociateCategory(id int, a string) ([]string, error) {
+
+	st, err := db.DB.Prepare(`INSERT INTO PostsCategories (PostID, CategoryID) VALUES (?,?)`)
+	defer st.Close()
+	if err != nil {
+		fmt.Println("CreatePost Prepare", err)
+		return err
+	}
+	_, err = st.Exec(new.AuthorID, new.Title, new.Content, d)
+	if err != nil {
+		fmt.Println("CreatePost Exec", err)
+		return err
+	}
+	return nil
+}
+
 // func AddNewCategory(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 // 	var cat *models.Categories
 // 	handlers.ReceiveJSON(r, &cat)
