@@ -24,47 +24,47 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	users, err := db.SelectUsers()
 
 	//---------------------DTO---------------------------
-	postDTOs := []models.PostDTO{}
+	DTOs := []models.PostDTO{}
 	for i := 0; i < len(posts); i++ {
-		p := models.PostDTO{}
-		p.ID = posts[i].ID
+		pDTO := models.PostDTO{}
+		pDTO.ID = posts[i].ID
 		for _, v := range users {
 			if v.ID == posts[i].AuthorID {
 				a := models.AuthorDTO{}
 				a.ID = v.ID
 				a.Nickname = v.Nickname
-				p.Author = a
+				pDTO.Author = a
 			}
 		}
-		p.Title = posts[i].Title
-		p.Content = posts[i].Content
+		pDTO.Title = posts[i].Title
+		pDTO.Content = posts[i].Content
 		ar := []string{}
 		for j := 0; j < len(pc); j++ {
 			if posts[i].ID == pc[j].PostID {
 				ar = append(ar, pc[j].CategoryName)
 			}
 		}
-		p.Categories = ar
-		p.Likes, err = db.CountReactionsToPost(1, posts[i].ID)
+		pDTO.Categories = ar
+		pDTO.Likes, err = db.CountReactionsToPost(1, posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		p.Dislikes, err = db.CountReactionsToPost(0, posts[i].ID)
+		pDTO.Dislikes, err = db.CountReactionsToPost(0, posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		p.Comments, err = db.CountComments(posts[i].ID)
+		pDTO.Comments, err = db.CountComments(posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		p.CreationDate = posts[i].CreationDate
-		postDTOs = append(postDTOs, p)
+		pDTO.CreationDate = posts[i].CreationDate
+		DTOs = append(DTOs, pDTO)
 	}
 
-	SendJSON(w, &postDTOs)
+	SendJSON(w, &DTOs)
 }
 
 func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
@@ -149,7 +149,7 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 }
 
 func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.Comments
+	var new models.Comment
 	ReceiveJSON(r, &new)
 	db.CreateComment(new)
 }
@@ -172,7 +172,7 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 }
 
 func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.Reactions
+	var new models.Reaction
 	ReceiveJSON(r, &new)
 	db.CreateReaction(new)
 }

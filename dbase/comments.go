@@ -53,7 +53,7 @@ func (db *DataBase) CountComments(postID int) (int, error) {
 // 	return AllComments, nil
 // }
 
-func (db *DataBase) CreateComment(new models.Comments) error {
+func (db *DataBase) CreateComment(new models.Comment) error {
 
 	st, err := db.DB.Prepare(`INSERT INTO Comments (AuthorID, PostID, Content) VALUES (?,?,?)`)
 	defer st.Close()

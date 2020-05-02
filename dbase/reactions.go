@@ -48,7 +48,7 @@ func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	return num, nil
 }
 
-func (db *DataBase) CreateReaction(new models.Reactions) error {
+func (db *DataBase) CreateReaction(new models.Reaction) error {
 	st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID, CommentID) VALUES (?,?,?,?)`)
 	defer st.Close()
 	if err != nil {
