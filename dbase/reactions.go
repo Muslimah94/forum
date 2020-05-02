@@ -49,16 +49,31 @@ func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 }
 
 func (db *DataBase) CreateReaction(new models.Reaction) error {
-	st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID, CommentID) VALUES (?,?,?,?)`)
-	defer st.Close()
-	if err != nil {
-		fmt.Println("CreateReaction Prepare", err)
-		return err
-	}
-	_, err = st.Exec(new.AuthorID, new.Type, new.PostID, new.CommentID)
-	if err != nil {
-		fmt.Println("CreateReaction Exec", err)
-		return err
+
+	if new.PostID == 0 {
+		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, CommentID) VALUES (?,?,?)`)
+		defer st.Close()
+		if err != nil {
+			fmt.Println("CreateReaction Prepare", err)
+			return err
+		}
+		_, err = st.Exec(new.AuthorID, new.Type, new.CommentID)
+		if err != nil {
+			fmt.Println("CreateReaction Exec", err)
+			return err
+		}
+	} else {
+		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID) VALUES (?,?,?)`)
+		defer st.Close()
+		if err != nil {
+			fmt.Println("CreateReaction Prepare", err)
+			return err
+		}
+		_, err = st.Exec(new.AuthorID, new.Type, new.PostID)
+		if err != nil {
+			fmt.Println("CreateReaction Exec", err)
+			return err
+		}
 	}
 	return nil
 }

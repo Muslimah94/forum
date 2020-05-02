@@ -11,43 +11,43 @@ type Post struct {
 
 // User ...
 type User struct {
-	ID       int    `json:"id"`
-	Email    string `json:"email"`
-	Nickname string `json:"nickname"`
-	Password string `json:"password"`
-	RoleID   int    `json:"role_id"`
+	ID       int
+	Email    string
+	Nickname string
+	Password string
+	RoleID   int
 }
 
 // Role ...
 type Role struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int
+	Name string
 }
 
 // Category ...
 type Category struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int
+	Name string
 }
 
-// Comments ...
+// Comment ...
 type Comment struct {
-	ID       int    `json:"id"`
-	AuthorID int    `json:"author_id"`
-	PostID   int    `json:"post_id"`
-	Content  string `json:"content"`
+	ID       int
+	AuthorID int
+	PostID   int
+	Content  string
 }
 
-// Reactions ...
+// Reaction ...
 type Reaction struct {
-	ID        int `json:"id"`
-	AuthorID  int `json:"author_id"`
-	Type      int `json:"type"`
-	PostID    int `json:"post_id"`
-	CommentID int `json:"comment_id"`
+	ID        int
+	AuthorID  int
+	Type      int
+	PostID    int
+	CommentID int
 }
 
-// PostsCategories ...
+// PostCategories ...
 type PostCategories struct {
 	PostID       int
 	CategoryID   int

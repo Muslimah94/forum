@@ -10,7 +10,7 @@ import (
 )
 
 func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-
+	//-------ENTITY---------------------------------------------------------
 	posts, err := db.SelectPosts()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -22,6 +22,10 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	users, err := db.SelectUsers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	//---------------------DTO---------------------------
 	DTOs := []models.PostDTO{}
@@ -70,21 +74,23 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	p, ok := r.URL.Query()["id"]
 	if !ok || len(p[0]) < 1 {
-		log.Println("GetPostByID: Url Param 'id{post}' is missing")
-		http.Error(w, "No request parameters found", http.StatusInternalServerError)
+		log.Println("GetPostByID: Url Param 'id' is missing")
+		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
 		return
 	}
 	postID, err := strconv.Atoi(p[0])
 	if err != nil {
-		log.Println("GetPostByID: Cannot convert string to int")
+		log.Println("GetPostByID Atoi:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	//----------ENTITY---------------------------------------------------------------
 	post, err := db.SelectPost(postID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	//-------DTO PREPARATION---------------------------------------------------------
 	postDTO := models.PostDTO{}
 	postDTO.ID = post.ID
 	postDTO.Author = models.AuthorDTO{}
@@ -124,34 +130,67 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	SendJSON(w, &postDTO)
 }
 
-func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request, postID int) {
+func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	p, ok := r.URL.Query()["post_id"]
+	if !ok || len(p[0]) < 1 {
+		log.Println("GetCommentsByPostID: Url Param 'post_id' is missing")
+		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
+		return
+	}
+	postID, err := strconv.Atoi(p[0])
+	if err != nil {
+		log.Println("GetCommentsByPostID Atoi: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// 	comments, err := db.SelectComments(postID)
-	// 	if err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// 	for i := 0; i < len(comments); i++ {
-	// 		comments[i].Likes, err = db.CountReactionsToComment(1, comments[i].ID)
-	// 		if err != nil {
-	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 			return
-	// 		}
-	// 		comments[i].Dislikes, err = db.CountReactionsToComment(0, comments[i].ID)
-	// 		if err != nil {
-	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 			return
-	// 		}
-	// 	}
-
-	// 	SendJSON(w, &comments)
+	//----------ENTITY---------------------------------------------------------------
+	comments, err := db.SelectComments(postID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//-------DTO PREPARATION---------------------------------------------------------
+	cDTOs := []models.CommentDTO{}
+	for i := 0; i < len(comments); i++ {
+		dto := models.CommentDTO{}
+		dto.ID = comments[i].ID
+		// ENTITY {
+		user, err := db.SelectUserByID(comments[i].AuthorID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// }
+		dto.Author = models.AuthorDTO{}
+		dto.Author.ID = user.ID
+		dto.Author.Nickname = user.Nickname
+		dto.PostID = comments[i].PostID
+		dto.Content = comments[i].Content
+		dto.Likes, err = db.CountReactionsToComment(1, comments[i].ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		dto.Dislikes, err = db.CountReactionsToComment(0, comments[i].ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		cDTOs = append(cDTOs, dto)
+	}
+	SendJSON(w, &cDTOs)
 }
 
 func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.Comment
+	var new models.CommentDTO
 	ReceiveJSON(r, &new)
-	db.CreateComment(new)
+	//--------ENTITY---------------------------------------
+	c := models.Comment{}
+	c.AuthorID = new.Author.ID
+	c.PostID = new.PostID
+	c.Content = new.Content
+	db.CreateComment(c)
 }
 
 func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
@@ -171,18 +210,25 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.Reaction
-	ReceiveJSON(r, &new)
-	db.CreateReaction(new)
+func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	a, err := db.ReturnCategories()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	dto := models.CategoriesDTO{AllCategories: a}
+	SendJSON(w, &dto)
 }
 
-func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	// 	a, err := db.ReturnCategories()
-	// 	if err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	result := models.Categories{AllCategories: a}
-	// 	SendJSON(w, &result)
+func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	var new models.ReactionDTO
+	ReceiveJSON(r, &new)
+	//-------ENTITY---------------
+	rea := models.Reaction{
+		AuthorID:  new.AuthorID,
+		Type:      new.Type,
+		PostID:    new.PostID,
+		CommentID: new.CommentID,
+	}
+	db.CreateReaction(rea)
 }

@@ -1,9 +1,7 @@
 package mplx
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	dbase "../dbase"
 	handlers "../handlers"
@@ -17,25 +15,26 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	m := r.Method
 
 	//----------POST---------------------------------------
-	if p == "/api/post" {
+	if p == "/api/posts" {
 		if m == "GET" {
 			handlers.GetAllPosts(db, w, r)
 		} else if m == "POST" {
 			handlers.NewPost(db, w, r)
 		}
-	}
-
-	//-----------COMMENTS----------------------------------
-	if len(p) > 13 && p[0:13] == "/api/comment/" {
-		postID, err := strconv.Atoi(p[13:])
-		if err != nil {
-			fmt.Println("Atoi /api/comment:", err.Error())
-		}
+	} else if p == "/api/post" {
 		if m == "GET" {
-			handlers.GetCommentsByPostID(db, w, r, postID)
+			handlers.GetPostByID(db, w, r)
 		}
-	} else if m == "POST" && p == "/api/comment" {
+	}
+	//-----------COMMENTS----------------------------------
+	if p == "/api/comments" && m == "GET" {
+		handlers.GetCommentsByPostID(db, w, r)
+	} else if p == "/api/comment" && m == "POST" {
 		handlers.NewComment(db, w, r)
+	}
+	//-----------Categories----------------------------------
+	if p == "/api/categories" && m == "GET" {
+		handlers.GetCategories(db, w, r)
 	}
 
 	//-----------RACTIONS----------------------------------
@@ -43,10 +42,6 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		handlers.NewReaction(db, w, r)
 	}
 
-	//-----------Categories----------------------------------
-	if p == "/api/categories" && m == "GET" {
-		handlers.GetCategories(db, w, r)
-	}
 }
 
 func Middleware(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {

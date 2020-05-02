@@ -96,38 +96,18 @@ func (db *DataBase) AssociateCategory(pID, cID int) error {
 	return nil
 }
 
-// func AddNewCategory(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-// 	var cat *models.Categories
-// 	handlers.ReceiveJSON(r, &cat)
-
-// 	st, err1 := db.Prepare(`INSERT INTO Categories (Name) VALUES (?)`)
-// 	if err1 != nil {
-// 		fmt.Println("AddNewCategory db.Prepare", err1)
-// 		http.Error(w, err1.Error(), http.StatusInternalServerError)
-// 		return
+// func (db *DataBase) AddNewCategory(cat models.CategoriesDTO) error {
+// 	st, err := db.Prepare(`INSERT INTO Categories (Name) VALUES (?)`)
+// 	if err != nil {
+// 		fmt.Println("AddNewCategory db.Prepare", err)
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return err
 // 	}
-// 	_, err3 := st.Exec(cat.Name)
-// 	if err3 != nil {
-// 		fmt.Println("AddNewCategory st.Exec", err3)
-// 		http.Error(w, err3.Error(), http.StatusInternalServerError)
-// 		return
+// 	_, err = st.Exec(cat.NewCategoryName)
+// 	if err != nil {
+// 		fmt.Println("AddNewCategory st.Exec", err)
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return err
 // 	}
-// }
-
-// func AddPostCategories(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-// 	var cat *models.PostsCategories
-// 	handlers.ReceiveJSON(r, &cat)
-
-// 	st, err1 := db.Prepare(`INSERT INTO PostsCategories (PostID,CategoryID) VALUES (?,?)`)
-// 	if err1 != nil {
-// 		fmt.Println("AddNewPostCategory db.Prepare", err1)
-// 		http.Error(w, err1.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	_, err3 := st.Exec(cat.PostID, cat.CategoryID)
-// 	if err3 != nil {
-// 		fmt.Println("AddNewPostCategory st.Exec", err3)
-// 		http.Error(w, err3.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
+//    return nil
 // }
