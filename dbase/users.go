@@ -1,41 +1,58 @@
 package dbase
 
-// import (
-// 	"database/sql"
-// 	"fmt"
-// 	"net/http"
+import (
+	"fmt"
 
-// 	models "../models"
+	models "../models"
+)
 
-// 	handlers "../handlers"
-// )
+// SelectUsers ...
+func (db *DataBase) SelectUsers() ([]models.User, error) {
+	rows, err := db.DB.Query(`SELECT * FROM Users`)
+	if err != nil {
+		fmt.Println("SelectUsers db.Query ERROR:", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var AllUsers []models.User
+	for rows.Next() {
+		var u models.User
+		err = rows.Scan(&u.ID, &u.Email, &u.Nickname, &u.Password, &u.RoleID)
+		if err != nil {
+			fmt.Println("SelectUsers rows.Scan ERROR:", err)
+			continue
+		}
+		AllUsers = append(AllUsers, u)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectUsers rows ERROR:", err)
+		return nil, err
+	}
+	return AllUsers, nil
+}
 
-// // GetAllUsers ...
-// func GetAllUsers(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-// 	rows, err1 := db.Query(`SELECT * FROM Users`)
-// 	if err1 != nil {
-// 		fmt.Println("GetAllUsers db.Query ERROR:", err1)
-// 		http.Error(w, err1.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	defer rows.Close()
-// 	var AllUsers []models.Users
-// 	for rows.Next() {
-// 		var u models.Users
-// 		err2 := rows.Scan(&u.ID, &u.Email, &u.Nickname, &u.Password, &u.RoleID)
-// 		if err2 != nil {
-// 			fmt.Println("GetAllUsers rows.Scan ERROR:", err2)
-// 			continue
-// 		}
-// 		AllUsers = append(AllUsers, u)
-// 	}
-// 	if err3 := rows.Err(); err3 != nil {
-// 		fmt.Println("GetAllUsers rows ERROR:", err3)
-// 		http.Error(w, err3.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	handlers.SendJSON(w, AllUsers)
-// }
+// SelectUsers ...
+func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
+	var u models.User
+	rows, err := db.DB.Query(`SELECT * FROM Users WHERE ID = ?`, userID)
+	if err != nil {
+		fmt.Println("SelectUserByID db.Query ERROR:", err)
+		return u, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		err = rows.Scan(&u.ID, &u.Email, &u.Nickname, &u.Password, &u.RoleID)
+		if err != nil {
+			fmt.Println("SelectUserByID rows.Scan ERROR:", err)
+			return u, err
+		}
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectUserByID rows ERROR:", err)
+		return u, err
+	}
+	return u, nil
+}
 
 // // AddNewUser ...
 // func AddNewUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {

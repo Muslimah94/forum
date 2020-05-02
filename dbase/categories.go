@@ -31,6 +31,31 @@ func (db *DataBase) SelectCategories() ([]models.PostCategories, error) {
 	return pc, nil
 }
 
+func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCategories, error) {
+	rows, err := db.DB.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
+	Categories ON PostsCategories.CategoryID = Categories.ID WHERE PostsCategories.PostID = ?`, id)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("SelectCategories Query:", err)
+		return nil, err
+	}
+	var pc []models.PostCategories
+	for rows.Next() {
+		var p models.PostCategories
+		err = rows.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
+		if err != nil {
+			fmt.Println("SelectCategories rows.Scan:", err)
+			continue
+		}
+		pc = append(pc, p)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectCategories rows:", err)
+		return nil, err
+	}
+	return pc, nil
+}
+
 func (db *DataBase) ReturnCategories() ([]string, error) {
 	rows, err := db.DB.Query(`SELECT Name FROM Categories`)
 	defer rows.Close()
@@ -55,7 +80,7 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 	return cat, nil
 }
 
-func (db *DataBase) AssociateCategory(id int, a string) ([]string, error) {
+func (db *DataBase) AssociateCategory(pID, cID int) error {
 
 	st, err := db.DB.Prepare(`INSERT INTO PostsCategories (PostID, CategoryID) VALUES (?,?)`)
 	defer st.Close()
@@ -63,7 +88,7 @@ func (db *DataBase) AssociateCategory(id int, a string) ([]string, error) {
 		fmt.Println("CreatePost Prepare", err)
 		return err
 	}
-	_, err = st.Exec(new.AuthorID, new.Title, new.Content, d)
+	_, err = st.Exec(pID, cID)
 	if err != nil {
 		fmt.Println("CreatePost Exec", err)
 		return err

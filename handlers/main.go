@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 
 	dbase "../dbase"
 	models "../models"
@@ -19,41 +21,78 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	users, err := db.SelectUsers()
+	postDTOs := []models.PostDTO{}
 	for i := 0; i < len(posts); i++ {
+		p := models.PostDTO{}
+		p.ID = posts[i].ID
+		for _, v := range users {
+			if v.ID == posts[i].AuthorID {
+				a := models.AuthorDTO{}
+				a.ID = v.ID
+				a.Nickname = v.Nickname
+				p.Author = a
+			}
+		}
+		p.Title = posts[i].Title
+		p.Content = posts[i].Content
 		ar := []string{}
 		for j := 0; j < len(pc); j++ {
 			if posts[i].ID == pc[j].PostID {
 				ar = append(ar, pc[j].CategoryName)
 			}
 		}
-		posts[i].Categories = ar
-		posts[i].Likes, err = db.CountReactionsToPost(1, posts[i].ID)
+		p.Categories = ar
+		p.Likes, err = db.CountReactionsToPost(1, posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		posts[i].Dislikes, err = db.CountReactionsToPost(0, posts[i].ID)
+		p.Dislikes, err = db.CountReactionsToPost(0, posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		posts[i].Comments, err = db.CountComments(posts[i].ID)
+		p.Comments, err = db.CountComments(posts[i].ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		p.CreationDate = posts[i].CreationDate
+		postDTOs = append(postDTOs, p)
 	}
 
-	SendJSON(w, &posts)
+	SendJSON(w, &postDTOs)
 }
 
-func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request, postID int) {
+func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	p, ok := r.URL.Query()["id"]
+	if !ok || len(p[0]) < 1 {
+		log.Println("GetPostByID: Url Param 'id{post}' is missing")
+		http.Error(w, "No request parameters found", http.StatusInternalServerError)
+		return
+	}
+	postID, err := strconv.Atoi(p[0])
+	if err != nil {
+		log.Println("GetPostByID: Cannot convert string to int")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	post, err := db.SelectPost(postID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	pc, err := db.SelectCategories()
+	postDTO := models.PostDTO{}
+	postDTO.ID = post.ID
+	postDTO.Author = models.AuthorDTO{}
+	user, err := db.SelectUserByID(post.AuthorID)
+	postDTO.Author.ID = user.ID
+	postDTO.Author.Nickname = user.Nickname
+	postDTO.Title = post.Title
+	postDTO.Content = post.Content
+
+	pc, err := db.SelectCategoriesByPostID(post.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -64,47 +103,47 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request, pos
 			ar = append(ar, pc[j].CategoryName)
 		}
 	}
-	post.Categories = ar
-	post.Likes, err = db.CountReactionsToPost(1, post.ID)
+	postDTO.Categories = ar
+	postDTO.Likes, err = db.CountReactionsToPost(1, post.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	post.Dislikes, err = db.CountReactionsToPost(0, post.ID)
+	postDTO.Dislikes, err = db.CountReactionsToPost(0, post.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	post.Comments, err = db.CountComments(post.ID)
+	postDTO.Comments, err = db.CountComments(post.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	SendJSON(w, &post)
+	SendJSON(w, &postDTO)
 }
 
 func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request, postID int) {
 
-	comments, err := db.SelectComments(postID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// 	comments, err := db.SelectComments(postID)
+	// 	if err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
 
-	for i := 0; i < len(comments); i++ {
-		comments[i].Likes, err = db.CountReactionsToComment(1, comments[i].ID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		comments[i].Dislikes, err = db.CountReactionsToComment(0, comments[i].ID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	// 	for i := 0; i < len(comments); i++ {
+	// 		comments[i].Likes, err = db.CountReactionsToComment(1, comments[i].ID)
+	// 		if err != nil {
+	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 			return
+	// 		}
+	// 		comments[i].Dislikes, err = db.CountReactionsToComment(0, comments[i].ID)
+	// 		if err != nil {
+	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 			return
+	// 		}
+	// 	}
 
-	SendJSON(w, &comments)
+	// 	SendJSON(w, &comments)
 }
 
 func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
@@ -114,15 +153,19 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 }
 
 func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.Posts
+	var new models.PostDTO
 	ReceiveJSON(r, &new)
-	ID, err := db.CreatePost(new)
+	post := models.Post{}
+	post.AuthorID = new.Author.ID
+	post.Title = new.Title
+	post.Content = new.Content
+	ID, err := db.CreatePost(post)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	for i := 0; i < len(new.Categories); i++ {
-		db.AssociateCategory(ID, new.Categories[i])
+	for i := 0; i < len(new.CategoriesID); i++ {
+		db.AssociateCategory(ID, new.CategoriesID[i])
 	}
 }
 
@@ -133,11 +176,11 @@ func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	a, err := db.ReturnCategories()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	result := models.Categories{AllCategories: a}
-	SendJSON(w, &result)
+	// 	a, err := db.ReturnCategories()
+	// 	if err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	result := models.Categories{AllCategories: a}
+	// 	SendJSON(w, &result)
 }

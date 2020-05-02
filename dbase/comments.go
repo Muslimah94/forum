@@ -27,31 +27,31 @@ func (db *DataBase) CountComments(postID int) (int, error) {
 	return num, nil
 }
 
-func (db *DataBase) SelectComments(postID int) ([]models.Comments, error) {
+// func (db *DataBase) SelectComments(postID int) ([]models.Comments, error) {
 
-	rows, err := db.DB.Query(`SELECT Comments.ID, AuthorID, PostID ,Content, Users.Nickname FROM Comments INNER JOIN
-	Users ON Comments.AuthorID = Users.ID WHERE Comments.PostID = ?`, postID)
-	defer rows.Close()
-	if err != nil {
-		fmt.Println("SelectComments Query:", err)
-		return nil, err
-	}
-	var AllComments []models.Comments
-	for rows.Next() {
-		var p models.Comments
-		err = rows.Scan(&p.ID, &p.AuthorID, &p.PostID, &p.Content, &p.AuthorNick)
-		if err != nil {
-			fmt.Println("SelectComments rows.Scan:", err)
-			continue
-		}
-		AllComments = append(AllComments, p)
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println("SelectComments rows:", err)
-		return nil, err
-	}
-	return AllComments, nil
-}
+// 	rows, err := db.DB.Query(`SELECT Comments.ID, AuthorID, PostID ,Content, Users.Nickname FROM Comments INNER JOIN
+// 	Users ON Comments.AuthorID = Users.ID WHERE Comments.PostID = ?`, postID)
+// 	defer rows.Close()
+// 	if err != nil {
+// 		fmt.Println("SelectComments Query:", err)
+// 		return nil, err
+// 	}
+// 	var AllComments []models.Comments
+// 	for rows.Next() {
+// 		var p models.Comments
+// 		err = rows.Scan(&p.ID, &p.AuthorID, &p.PostID, &p.Content, &p.AuthorNick)
+// 		if err != nil {
+// 			fmt.Println("SelectComments rows.Scan:", err)
+// 			continue
+// 		}
+// 		AllComments = append(AllComments, p)
+// 	}
+// 	if err = rows.Err(); err != nil {
+// 		fmt.Println("SelectComments rows:", err)
+// 		return nil, err
+// 	}
+// 	return AllComments, nil
+// }
 
 func (db *DataBase) CreateComment(new models.Comments) error {
 

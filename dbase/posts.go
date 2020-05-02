@@ -7,19 +7,18 @@ import (
 	models "../models"
 )
 
-func (db *DataBase) SelectPosts() ([]models.Posts, error) {
+func (db *DataBase) SelectPosts() ([]models.Post, error) {
 
-	rows, err := db.DB.Query(`SELECT Posts.ID, Posts.Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
-	Users ON Posts.AuthorID = Users.ID`)
+	rows, err := db.DB.Query(`SELECT * FROM Posts`)
 	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectPosts Query:", err)
 		return nil, err
 	}
-	var AllPosts []models.Posts
+	var AllPosts []models.Post
 	for rows.Next() {
-		var p models.Posts
-		err = rows.Scan(&p.ID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
+		var p models.Post
+		err = rows.Scan(&p.ID, &p.AuthorID, &p.Title, &p.Content, &p.CreationDate)
 		if err != nil {
 			fmt.Println("SelectPosts rows.Scan:", err)
 			continue
@@ -34,12 +33,11 @@ func (db *DataBase) SelectPosts() ([]models.Posts, error) {
 
 }
 
-func (db *DataBase) SelectPost(postID int) (models.Posts, error) {
+func (db *DataBase) SelectPost(postID int) (models.Post, error) {
 
-	var p models.Posts
-	rows := db.DB.QueryRow(`SELECT Posts.ID, AuthorID, Title, Content, CreationDate, Users.Nickname FROM Posts INNER JOIN
-	Users ON Posts.AuthorID = Users.ID WHERE Posts.ID = ? `, postID)
-	err := rows.Scan(&p.ID, &p.AuthorID, &p.Title, &p.Content, &p.CreationDate, &p.AuthorNick)
+	var p models.Post
+	rows := db.DB.QueryRow(`SELECT * FROM Posts WHERE ID = ? `, postID)
+	err := rows.Scan(&p.ID, &p.AuthorID, &p.Title, &p.Content, &p.CreationDate)
 	if err != nil {
 		fmt.Println("SelectPost:", err)
 		return p, err
@@ -47,7 +45,7 @@ func (db *DataBase) SelectPost(postID int) (models.Posts, error) {
 	return p, nil
 }
 
-func (db *DataBase) CreatePost(new models.Posts) (int, error) {
+func (db *DataBase) CreatePost(new models.Post) (int, error) {
 	n := 0
 	d := time.Now().Unix()
 	st, err := db.DB.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
