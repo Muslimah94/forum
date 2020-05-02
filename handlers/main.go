@@ -22,6 +22,8 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	users, err := db.SelectUsers()
+
+	//---------------------DTO---------------------------
 	postDTOs := []models.PostDTO{}
 	for i := 0; i < len(posts); i++ {
 		p := models.PostDTO{}
