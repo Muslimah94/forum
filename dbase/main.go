@@ -19,59 +19,47 @@ func Create(DBname string) (*DataBase, error) {
 		fmt.Println("Create sql.Open:", err)
 		return nil, err
 	}
-	_, err1 := db.Exec(`PRAGMA foreign_keys = ON`)
-	if err1 != nil {
-		fmt.Println("Failed to set foreign keys:", err1)
-		return nil, err1
+	_, err = db.Exec(`PRAGMA foreign_keys = ON`)
+	if err != nil {
+		fmt.Println("Failed to set foreign keys in DB:", err)
+		return nil, err
 	}
-	_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Users (
-		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		Email	TEXT NOT NULL UNIQUE,
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS Users (
+		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		Nickname	TEXT NOT NULL UNIQUE,
-		Password	TEXT NOT NULL,
+		FirstName	TEXT NOT NULL,
+		LastName	TEXT NOT NULL,
+		Avatar	TEXT,
 		RoleID	INTEGER NOT NULL,
-		FOREIGN KEY (RoleID) REFERENCES Roles(ID))`)
-	if err2 != nil {
-		fmt.Println("Failed to create Users table:", err2)
-		return nil, err2
-	}
-	_, err3 := db.Exec(`CREATE TABLE IF NOT EXISTS Roles (
+		FOREIGN KEY(RoleID) REFERENCES Roles(ID) ON UPDATE CASCADE);
+	CREATE TABLE IF NOT EXISTS Credentials (
+		ID	INTEGER NOT NULL,
+		Email	TEXT NOT NULL UNIQUE,
+		HashedPassword	TEXT NOT NULL,
+		PRIMARY KEY(ID),
+		FOREIGN KEY(ID) REFERENCES Users(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS Roles (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		Name	TEXT NOT NULL)`)
-	if err3 != nil {
-		fmt.Println("Failed to create Roles table:", err3)
-		return nil, err3
-	}
-	_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Categories (
+		Name	TEXT NOT NULL UNIQUE);
+	CREATE TABLE IF NOT EXISTS Categories (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		Name	TEXT NOT NULL UNIQUE)`)
-	if err4 != nil {
-		fmt.Println("Failed to create Categories table:", err4)
-		return nil, err4
-	}
-	_, err5 := db.Exec(`CREATE TABLE IF NOT EXISTS Posts (
+		Name	TEXT NOT NULL UNIQUE);
+	CREATE TABLE IF NOT EXISTS Posts (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 		AuthorID	INTEGER NOT NULL,
 		Title	TEXT NOT NULL,
-		Content	TEXT NOT NULL,
+		Content	BLOB NOT NULL,
 		CreationDate TEXT NOT NULL,
-		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE)`)
-	if err5 != nil {
-		fmt.Println("Failed to create Posts table:", err5)
-		return nil, err5
-	}
-	_, err6 := db.Exec(`CREATE TABLE IF NOT EXISTS Comments (
+		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS Comments (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 		AuthorID	INTEGER NOT NULL,
 		PostID	INTEGER NOT NULL,
 		Content	INTEGER NOT NULL,
 		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
-		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE)`)
-	if err6 != nil {
-		fmt.Println("Failed to create Comments table:", err6)
-		return nil, err6
-	}
-	_, err7 := db.Exec(`CREATE TABLE IF NOT EXISTS Reactions (
+		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS Reactions (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 		Type	INTEGER NOT NULL,
 		AuthorID	INTEGER NOT NULL,
@@ -79,30 +67,71 @@ func Create(DBname string) (*DataBase, error) {
 		CommentID	INTEGER,
 		FOREIGN KEY(CommentID) REFERENCES Comments(ID) ON DELETE CASCADE,
 		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
-		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE)`)
-	if err7 != nil {
-		fmt.Println("Failed to create Reactions table:", err7)
-		return nil, err7
-	}
-	_, err8 := db.Exec(`CREATE TABLE IF NOT EXISTS Sessions (
+		FOREIGN KEY(AuthorID) REFERENCES Users(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS Sessions (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 		UserID	INTEGER NOT NULL,
-		UUID	TEXT NOT NULL,
+		UUID	TEXT NOT NULL UNIQUE,
 		ExpDate	TEXT NOT NULL,
-		FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE)`)
-	if err8 != nil {
-		fmt.Println("Failed to create Sessions table:", err8)
-		return nil, err8
-	}
-	_, err9 := db.Exec(`CREATE TABLE IF NOT EXISTS PostsCategories (
+		FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS PostCats (
+		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 		PostID	INTEGER NOT NULL,
 		CategoryID	INTEGER NOT NULL,
 		FOREIGN KEY(CategoryID) REFERENCES Categories(ID) ON DELETE CASCADE,
-		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE)`)
-	if err9 != nil {
-		fmt.Println("Failed to create PostsCategories table:", err9)
-		return nil, err9
+		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE);`)
+	if err != nil {
+		fmt.Println("Failed to create tables:", err)
+		return nil, err
 	}
 	database := DataBase{DB: db}
 	return &database, nil
 }
+
+// _, err = db.Exec(`INSERT INTO Roles (Name)
+// 	VALUES
+// 		("Admin"),
+// 		("Moderator"),
+// 		("User"),
+// 		("Guest");
+// 	INSERT INTO Users (Nickname, FirstName, LastName, RoleID)
+// 	VALUES
+// 		("Pirozhok", "Serik", "Serik", 1),
+// 		("Alibek-tse", "Alibek", "Tokanov", 2),
+// 		("Muslimah94", "Maral", "Tokanova", 2),
+// 		("Koba", "Kobylan", "Kobylan", 3),
+// 		("Alanapapa", "Berik", "Berik", 3);
+// 	INSERT INTO Posts (AuthorID, Title, Content)
+// 	VALUES
+// 		(1, "Post number 1", "Serik Serik Serik Serik Serik Serik Serik"),
+// 		(2, "Post number 2", "Alibek Alibek Alibek Alibek Alibek Alibek Alibek");
+// 	INSERT INTO Reactions (Type, AuthorID, PostID)
+// 	VALUES
+// 		(0, 1, 1),
+// 		(0, 2, 1),
+// 		(0, 3, 1),
+// 		(0, 4, 1),
+// 		(1, 5, 1),
+// 		(1, 1, 2),
+// 		(1, 2, 2),
+// 		(1, 3, 2),
+// 		(1, 4, 2),
+// 		(0, 5, 2);
+// 	INSERT INTO Categories (Name)
+// 	VALUES
+// 		("Web and Mobile Development"),
+// 		("Algorithms"),
+// 		("Graphics"),
+// 		("IU");
+// 	INSERT INTO PostCats (PostID, CategoryID)
+// 	VALUES
+// 		(1, 1),
+// 		(1, 2),
+// 		(2, 3),
+// 		(2, 4);
+// 	INSERT INTO Comments (AuthorID, PostID, Content)
+// 	VALUES (3, 2, "GooD GooD GooD GooD GooD GooD GooD GooD")`)
+// 	if err != nil {
+// 		fmt.Println("Failed to add rows to tables:", err)
+// 		return nil, err
+// 	}

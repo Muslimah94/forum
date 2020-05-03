@@ -5,17 +5,18 @@ type Post struct {
 	ID           int
 	AuthorID     int
 	Title        string
-	Content      string
+	Content      []byte
 	CreationDate int64
 }
 
 // User ...
 type User struct {
-	ID       int
-	Email    string
-	Nickname string
-	Password string
-	RoleID   int
+	ID        int
+	Nickname  string
+	FirstName string
+	LastName  string
+	Avatar    string
+	RoleID    int
 }
 
 // Role ...
@@ -41,15 +42,24 @@ type Comment struct {
 // Reaction ...
 type Reaction struct {
 	ID        int
-	AuthorID  int
 	Type      int
+	AuthorID  int
 	PostID    int
 	CommentID int
 }
 
-// PostCategories ...
-type PostCategories struct {
+// PostCat ...
+type PostCat struct {
+	ID           int
 	PostID       int
 	CategoryID   int
 	CategoryName string
+}
+
+// Session ...
+type Session struct {
+	ID      int
+	UserID  int
+	UUID    string
+	ExpDate string
 }

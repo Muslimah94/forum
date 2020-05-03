@@ -5,7 +5,7 @@ type PostDTO struct {
 	ID           int       `json:"id"`
 	Author       AuthorDTO `json:"author"`
 	Title        string    `json:"title"`
-	Content      string    `json:"content"`
+	Content      []byte    `json:"content"`
 	Categories   []string  `json:"categories"`
 	Likes        int       `json:"likes"`
 	Dislikes     int       `json:"dislikes"`

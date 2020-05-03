@@ -6,17 +6,17 @@ import (
 	models "../models"
 )
 
-func (db *DataBase) SelectCategories() ([]models.PostCategories, error) {
-	rows, err := db.DB.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
-	Categories ON PostsCategories.CategoryID = Categories.ID`)
+func (db *DataBase) SelectCategories() ([]models.PostCat, error) {
+	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
+	Categories ON PostCats.CategoryID = Categories.ID`)
 	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectCategories Query:", err)
 		return nil, err
 	}
-	var pc []models.PostCategories
+	var pc []models.PostCat
 	for rows.Next() {
-		var p models.PostCategories
+		var p models.PostCat
 		err = rows.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
 		if err != nil {
 			fmt.Println("SelectCategories rows.Scan:", err)
@@ -31,26 +31,26 @@ func (db *DataBase) SelectCategories() ([]models.PostCategories, error) {
 	return pc, nil
 }
 
-func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCategories, error) {
-	rows, err := db.DB.Query(`SELECT PostsCategories.PostID, CategoryID, Categories.Name FROM PostsCategories INNER JOIN
-	Categories ON PostsCategories.CategoryID = Categories.ID WHERE PostsCategories.PostID = ?`, id)
+func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
+	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
+	Categories ON PostCats.CategoryID = Categories.ID WHERE PostCats.PostID = ?`, id)
 	defer rows.Close()
 	if err != nil {
-		fmt.Println("SelectCategories Query:", err)
+		fmt.Println("SelectCategoriesByPostID Query:", err)
 		return nil, err
 	}
-	var pc []models.PostCategories
+	var pc []models.PostCat
 	for rows.Next() {
-		var p models.PostCategories
+		var p models.PostCat
 		err = rows.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
 		if err != nil {
-			fmt.Println("SelectCategories rows.Scan:", err)
+			fmt.Println("SelectCategoriesByPostID rows.Scan:", err)
 			continue
 		}
 		pc = append(pc, p)
 	}
 	if err = rows.Err(); err != nil {
-		fmt.Println("SelectCategories rows:", err)
+		fmt.Println("SelectCategoriesByPostID rows:", err)
 		return nil, err
 	}
 	return pc, nil
@@ -82,15 +82,15 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 
 func (db *DataBase) AssociateCategory(pID, cID int) error {
 
-	st, err := db.DB.Prepare(`INSERT INTO PostsCategories (PostID, CategoryID) VALUES (?,?)`)
+	st, err := db.DB.Prepare(`INSERT INTO PostCats (PostID, CategoryID) VALUES (?,?)`)
 	defer st.Close()
 	if err != nil {
-		fmt.Println("CreatePost Prepare", err)
+		fmt.Println("AssociateCategory Prepare", err)
 		return err
 	}
 	_, err = st.Exec(pID, cID)
 	if err != nil {
-		fmt.Println("CreatePost Exec", err)
+		fmt.Println("AssociateCategory Exec", err)
 		return err
 	}
 	return nil

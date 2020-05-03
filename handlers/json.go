@@ -20,12 +20,11 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 }
 
 // ReceiveJSON function decodes data from request
-func ReceiveJSON(r *http.Request, v interface{}) {
-	var w http.ResponseWriter
-	err1 := json.NewDecoder(r.Body).Decode(v)
-	if err1 != nil {
-		fmt.Println("ReceiveJSON: Failed to Decode", err1)
-		http.Error(w, err1.Error(), http.StatusBadRequest)
-		return
+func ReceiveJSON(r *http.Request, v interface{}) error {
+	err := json.NewDecoder(r.Body).Decode(v)
+	if err != nil {
+		fmt.Println("ReceiveJSON: Failed to Decode", err)
+		return err
 	}
+	return err
 }

@@ -184,7 +184,10 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 
 func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.CommentDTO
-	ReceiveJSON(r, &new)
+	err := ReceiveJSON(r, &new)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	//--------ENTITY---------------------------------------
 	c := models.Comment{}
 	c.AuthorID = new.Author.ID
@@ -195,7 +198,10 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 
 func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.PostDTO
-	ReceiveJSON(r, &new)
+	err := ReceiveJSON(r, &new)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	post := models.Post{}
 	post.AuthorID = new.Author.ID
 	post.Title = new.Title
@@ -222,7 +228,10 @@ func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 
 func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.ReactionDTO
-	ReceiveJSON(r, &new)
+	err := ReceiveJSON(r, &new)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	//-------ENTITY---------------
 	rea := models.Reaction{
 		AuthorID:  new.AuthorID,
