@@ -126,17 +126,27 @@ func (db *DataBase) SelectReaction(new models.Reaction) (int, error) {
 func (db *DataBase) UpdateReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
-		st, err := db.DB.Query(`UPDATE Reactions SET Type = ? WHERE AuthorID = ? AND CommentID = ?`, new.Type, new.AuthorID, new.CommentID)
-		defer st.Close()
+		stmt, err := db.DB.Prepare(`UPDATE Reactions SET type = ? WHERE AuthorID = ? AND CommentID = ?`)
+		defer stmt.Close()
 		if err != nil {
-			fmt.Println("UpdateReaction Prepare", err)
+			fmt.Println("UpdateReaction Prepare[comment]", err)
+			return err
+		}
+		_, err = stmt.Exec(new.Type, new.AuthorID, new.CommentID)
+		if err != nil {
+			fmt.Println("UpdateReaction Exec[comment]", err)
 			return err
 		}
 	} else {
-		st, err := db.DB.Query(`UPDATE Reactions SET Type = ? WHERE AuthorID = ? AND PostID = ?`, new.Type, new.AuthorID, new.PostID)
-		defer st.Close()
+		stmt, err := db.DB.Prepare(`UPDATE Reactions SET type = ? WHERE AuthorID = ? AND PostID = ?`)
+		defer stmt.Close()
 		if err != nil {
-			fmt.Println("UpdateReaction Prepare", err)
+			fmt.Println("UpdateReaction Prepare[post]", err)
+			return err
+		}
+		_, err = stmt.Exec(new.Type, new.AuthorID, new.PostID)
+		if err != nil {
+			fmt.Println("UpdateReaction Exec[post]", err)
 			return err
 		}
 	}
