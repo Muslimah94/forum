@@ -9,8 +9,6 @@
 
 /api/reaction [POST] add like/dislike to DB (if like type=1, else type=0) !!! DOESN'T WORK !!!
 
-
-
 1. credentials vynesti (id, email foregn key, pass) DONE
 2. reakcii peredelat'
 3. sessii() get session by id, create session

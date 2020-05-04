@@ -6,6 +6,7 @@ import (
 	models "../models"
 )
 
+// CountReactionsToPost ...
 func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND PostID = ?`, t, postID)
@@ -27,6 +28,7 @@ func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 	return num, nil
 }
 
+// CountReactionsToComment ...
 func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND CommentID = ?`, t, commentID)
@@ -48,6 +50,7 @@ func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	return num, nil
 }
 
+// CreateReaction ...
 func (db *DataBase) CreateReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
@@ -72,6 +75,68 @@ func (db *DataBase) CreateReaction(new models.Reaction) error {
 		_, err = st.Exec(new.AuthorID, new.Type, new.PostID)
 		if err != nil {
 			fmt.Println("CreateReaction Exec", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// SelectReaction ...
+func (db *DataBase) SelectReaction(new models.Reaction) (int, error) {
+	num := 0
+	if new.PostID == 0 {
+		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND AuthorID = ? AND CommentID = ?`, new.Type, new.AuthorID, new.CommentID)
+		defer rows.Close()
+		if err != nil {
+			fmt.Println("SelectReaction Query[comment]:", err)
+			return 0, err
+		}
+		if rows.Next() {
+			err = rows.Scan(&num)
+			if err != nil {
+				fmt.Println("SelectReaction[comment] rows.Scan:", err)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			fmt.Println("SelectReaction[comment] rows:", err)
+			return 0, err
+		}
+	} else {
+		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND AuthorID = ? AND PostID = ?`, new.Type, new.AuthorID, new.PostID)
+		defer rows.Close()
+		if err != nil {
+			fmt.Println("SelectReaction Query[post]:", err)
+			return 0, err
+		}
+		if rows.Next() {
+			err = rows.Scan(&num)
+			if err != nil {
+				fmt.Println("SelectReaction[post] rows.Scan:", err)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			fmt.Println("SelectReaction[post] rows:", err)
+			return 0, err
+		}
+	}
+	return num, nil
+}
+
+// UpdateReaction ...
+func (db *DataBase) UpdateReaction(new models.Reaction) error {
+
+	if new.PostID == 0 {
+		st, err := db.DB.Query(`UPDATE Reactions SET Type = ? WHERE AuthorID = ? AND CommentID = ?`, new.Type, new.AuthorID, new.CommentID)
+		defer st.Close()
+		if err != nil {
+			fmt.Println("UpdateReaction Prepare", err)
+			return err
+		}
+	} else {
+		st, err := db.DB.Query(`UPDATE Reactions SET Type = ? WHERE AuthorID = ? AND PostID = ?`, new.Type, new.AuthorID, new.PostID)
+		defer st.Close()
+		if err != nil {
+			fmt.Println("UpdateReaction Prepare", err)
 			return err
 		}
 	}
