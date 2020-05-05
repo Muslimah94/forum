@@ -85,7 +85,7 @@ func (db *DataBase) CreateReaction(new models.Reaction) error {
 func (db *DataBase) SelectReaction(new models.Reaction) (int, error) {
 	num := 0
 	if new.PostID == 0 {
-		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND AuthorID = ? AND CommentID = ?`, new.Type, new.AuthorID, new.CommentID)
+		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE AuthorID = ? AND CommentID = ?`, new.AuthorID, new.CommentID)
 		defer rows.Close()
 		if err != nil {
 			fmt.Println("SelectReaction Query[comment]:", err)
@@ -102,7 +102,7 @@ func (db *DataBase) SelectReaction(new models.Reaction) (int, error) {
 			return 0, err
 		}
 	} else {
-		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND AuthorID = ? AND PostID = ?`, new.Type, new.AuthorID, new.PostID)
+		rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE AuthorID = ? AND PostID = ?`, new.AuthorID, new.PostID)
 		defer rows.Close()
 		if err != nil {
 			fmt.Println("SelectReaction Query[post]:", err)
@@ -127,7 +127,6 @@ func (db *DataBase) UpdateReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
 		stmt, err := db.DB.Prepare(`UPDATE Reactions SET type = ? WHERE AuthorID = ? AND CommentID = ?`)
-		defer stmt.Close()
 		if err != nil {
 			fmt.Println("UpdateReaction Prepare[comment]", err)
 			return err
@@ -137,9 +136,10 @@ func (db *DataBase) UpdateReaction(new models.Reaction) error {
 			fmt.Println("UpdateReaction Exec[comment]", err)
 			return err
 		}
+		defer stmt.Close()
 	} else {
 		stmt, err := db.DB.Prepare(`UPDATE Reactions SET type = ? WHERE AuthorID = ? AND PostID = ?`)
-		defer stmt.Close()
+
 		if err != nil {
 			fmt.Println("UpdateReaction Prepare[post]", err)
 			return err
@@ -149,6 +149,7 @@ func (db *DataBase) UpdateReaction(new models.Reaction) error {
 			fmt.Println("UpdateReaction Exec[post]", err)
 			return err
 		}
+		defer stmt.Close()
 	}
 	return nil
 }
