@@ -31,7 +31,7 @@ func (db *DataBase) SelectUsers() ([]models.User, error) {
 	return AllUsers, nil
 }
 
-// SelectUsers ...
+// SelectUserByID ...
 func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 	var u models.User
 	rows, err := db.DB.Query(`SELECT ID, Nickname, FirstName, LastName, RoleID FROM Users WHERE ID = ?`, userID)
@@ -52,6 +52,52 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 		return u, err
 	}
 	return u, nil
+}
+
+func (db *DataBase) SelectUser() {}
+
+func (db *DataBase) CreateUser(new models.User) (int, error) {
+	n := 0
+	st, err := db.DB.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
+	defer st.Close()
+	if err != nil {
+		fmt.Println("CreateUser Prepare", err)
+		return n, err
+	}
+	_, err = st.Exec(new.Nickname, new.RoleID)
+	if err != nil {
+		fmt.Println("CreateUser Exec", err)
+		return n, err
+	}
+	n, err = db.ReturnLastUserID()
+	if err != nil {
+		fmt.Println("CreateUser Exec", err)
+		return n, err
+	}
+	return n, nil
+}
+
+// ReturnLastUserID ...
+func (db *DataBase) ReturnLastUserID() (int, error) {
+	n := 0
+	rows, err := db.DB.Query(`SELECT ID FROM Users ORDER BY ID DESC LIMIT 1`)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("ReturnLastUserID Query:", err)
+		return n, err
+	}
+	for rows.Next() {
+		err = rows.Scan(&n)
+		if err != nil {
+			fmt.Println("ReturnLastUserID rows.Scan:", err)
+			continue
+		}
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("ReturnLastUserID rows:", err)
+		return n, err
+	}
+	return n, nil
 }
 
 // // AddNewUser ...

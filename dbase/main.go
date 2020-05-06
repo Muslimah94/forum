@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 
+	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// DataBase ...
 type DataBase struct {
 	DB *sql.DB
 }
@@ -28,8 +30,8 @@ func Create(DBname string) (*DataBase, error) {
 	CREATE TABLE IF NOT EXISTS Users (
 		ID	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		Nickname	TEXT NOT NULL UNIQUE,
-		FirstName	TEXT NOT NULL,
-		LastName	TEXT NOT NULL,
+		FirstName	TEXT,
+		LastName	TEXT,
 		Avatar	TEXT,
 		RoleID	INTEGER NOT NULL,
 		FOREIGN KEY(RoleID) REFERENCES Roles(ID) ON UPDATE CASCADE);

@@ -43,3 +43,9 @@ type ReactionDTO struct {
 	PostID    int `json:"post_id"`
 	CommentID int `json:"comment_id"`
 }
+
+type RegisterUser struct {
+	Email    string `json:"email"`
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+}

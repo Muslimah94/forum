@@ -135,6 +135,7 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	err := ReceiveJSON(r, &new)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	post := models.Post{}
 	post.AuthorID = new.Author.ID

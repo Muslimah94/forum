@@ -63,3 +63,10 @@ type Session struct {
 	UUID    string
 	ExpDate string
 }
+
+// Credentials ...
+type Credentials struct {
+	ID             int
+	Email          string
+	HashedPassword string
+}

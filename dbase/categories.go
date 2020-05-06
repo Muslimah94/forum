@@ -6,6 +6,7 @@ import (
 	models "../models"
 )
 
+// SelectCategories ...
 func (db *DataBase) SelectCategories() ([]models.PostCat, error) {
 	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
 	Categories ON PostCats.CategoryID = Categories.ID`)
@@ -31,6 +32,7 @@ func (db *DataBase) SelectCategories() ([]models.PostCat, error) {
 	return pc, nil
 }
 
+// SelectCategoriesByPostID ...
 func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
 	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
 	Categories ON PostCats.CategoryID = Categories.ID WHERE PostCats.PostID = ?`, id)
@@ -56,6 +58,7 @@ func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
 	return pc, nil
 }
 
+// ReturnCategories ...
 func (db *DataBase) ReturnCategories() ([]string, error) {
 	rows, err := db.DB.Query(`SELECT Name FROM Categories`)
 	defer rows.Close()
@@ -80,6 +83,7 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 	return cat, nil
 }
 
+// AssociateCategory ...
 func (db *DataBase) AssociateCategory(pID, cID int) error {
 
 	st, err := db.DB.Prepare(`INSERT INTO PostCats (PostID, CategoryID) VALUES (?,?)`)

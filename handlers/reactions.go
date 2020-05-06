@@ -7,16 +7,7 @@ import (
 	models "../models"
 )
 
-func GetCategories(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	a, err := db.ReturnCategories()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	dto := models.CategoriesDTO{AllCategories: a}
-	SendJSON(w, &dto)
-}
-
+// NewReaction ...
 func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.ReactionDTO
 	err := ReceiveJSON(r, &new)

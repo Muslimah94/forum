@@ -7,6 +7,7 @@ import (
 	models "../models"
 )
 
+// CountComments ...
 func (db *DataBase) CountComments(postID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Comments WHERE PostID = ?`, postID)
@@ -28,6 +29,7 @@ func (db *DataBase) CountComments(postID int) (int, error) {
 	return num, nil
 }
 
+// SelectComments ...
 func (db *DataBase) SelectComments(postID int) ([]models.Comment, error) {
 
 	rows, err := db.DB.Query(`SELECT ID, AuthorID, PostID, Content FROM Comments WHERE PostID = ?`, postID)
@@ -53,6 +55,7 @@ func (db *DataBase) SelectComments(postID int) ([]models.Comment, error) {
 	return AllComments, nil
 }
 
+// CreateComment ...
 func (db *DataBase) CreateComment(new models.Comment) error {
 
 	st, err := db.DB.Prepare(`INSERT INTO Comments (AuthorID, PostID, Content) VALUES (?,?,?)`)

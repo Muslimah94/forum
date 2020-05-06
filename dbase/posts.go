@@ -7,6 +7,7 @@ import (
 	models "../models"
 )
 
+// SelectPosts ...
 func (db *DataBase) SelectPosts() ([]models.Post, error) {
 
 	rows, err := db.DB.Query(`SELECT * FROM Posts`)
@@ -33,6 +34,7 @@ func (db *DataBase) SelectPosts() ([]models.Post, error) {
 
 }
 
+// SelectPost ...
 func (db *DataBase) SelectPost(postID int) (models.Post, error) {
 
 	var p models.Post
@@ -45,6 +47,7 @@ func (db *DataBase) SelectPost(postID int) (models.Post, error) {
 	return p, nil
 }
 
+// CreatePost ...
 func (db *DataBase) CreatePost(new models.Post) (int, error) {
 	n := 0
 	d := time.Now().Unix()
@@ -67,9 +70,10 @@ func (db *DataBase) CreatePost(new models.Post) (int, error) {
 	return n, nil
 }
 
+// ReturnLastPostID ...
 func (db *DataBase) ReturnLastPostID() (int, error) {
 	n := 0
-	rows, err := db.DB.Query(`SELECT ID FROM Posts ORDER BY Id DESC LIMIT 1`)
+	rows, err := db.DB.Query(`SELECT ID FROM Posts ORDER BY ID DESC LIMIT 1`)
 	defer rows.Close()
 	if err != nil {
 		fmt.Println("ReturnLastPostID Query:", err)
