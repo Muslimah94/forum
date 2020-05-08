@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	dbase "../dbase"
 	models "../models"
@@ -47,5 +48,20 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	session := models.Session{UserID: ID}
 	UUID, err := db.CreateSession(session)
 	fmt.Println("Last created session's UUID:", UUID)
+	SetCookie(db, w, r)
 
+}
+
+func SetCookie(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("logged-in_forum")
+	if err == http.ErrNoCookie {
+		cookie = &http.Cookie{
+			Name:     "logged-in_forum",
+			Value:    "1",
+			Expires:  time.Now().Add(time.Hour * 1),
+			Secure:   true,
+			HttpOnly: true,
+		}
+	}
+	http.SetCookie(w, cookie)
 }
