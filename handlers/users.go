@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	dbase "../dbase"
@@ -16,7 +17,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	//--------ENTITY for users table----------------------
+	//--------ENTITY for Users table----------------------
 	user := models.User{
 		Nickname: new.Nickname,
 		RoleID:   3,
@@ -42,4 +43,9 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	session := models.Session{UserID: ID}
+	UUID, err := db.CreateSession(session)
+	fmt.Println("Last created session's UUID:", UUID)
+
 }

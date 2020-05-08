@@ -1,5 +1,7 @@
 package models
 
+import uuid "github.com/satori/go.uuid"
+
 // Post ...
 type Post struct {
 	ID           int
@@ -60,8 +62,8 @@ type PostCat struct {
 type Session struct {
 	ID      int
 	UserID  int
-	UUID    string
-	ExpDate string
+	UUID    uuid.UUID
+	ExpDate int64
 }
 
 // Credentials ...
