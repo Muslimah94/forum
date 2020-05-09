@@ -48,11 +48,14 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	session := models.Session{UserID: ID}
 	UUID, err := db.CreateSession(session)
 	fmt.Println("Last created session's UUID:", UUID)
-	SetCookie(db, w, r)
-
+	err = SetCookie(w, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func SetCookie(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+func SetCookie(w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err == http.ErrNoCookie {
 		cookie = &http.Cookie{
@@ -64,4 +67,22 @@ func SetCookie(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.SetCookie(w, cookie)
+	return nil
+}
+
+func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie("logged-in_forum")
+	if err != nil {
+		fmt.Println("DeleteCookie error:")
+		return err
+	}
+	cookie = &http.Cookie{
+		Name:     "logged-in_forum",
+		Value:    "1",
+		MaxAge:   -1,
+		Secure:   true,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, cookie)
+	return nil
 }
