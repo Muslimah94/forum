@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	dbase "../dbase"
@@ -25,7 +26,8 @@ func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	if &existing == nil {
+	if existing == nil {
+		fmt.Println("Create reaction")
 		db.CreateReaction(rea)
 	} else {
 		if existing.Type != rDTO.Type {

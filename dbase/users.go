@@ -8,7 +8,7 @@ import (
 
 // SelectUsers ...
 func (db *DataBase) SelectUsers() ([]models.User, error) {
-	rows, err := db.DB.Query(`SELECT ID, Nickname, FirstName, LastName, RoleID FROM Users`)
+	rows, err := db.DB.Query(`SELECT ID, Nickname, RoleID FROM Users`)
 	if err != nil {
 		fmt.Println("SelectUsers db.Query ERROR:", err)
 		return nil, err
@@ -17,7 +17,7 @@ func (db *DataBase) SelectUsers() ([]models.User, error) {
 	var AllUsers []models.User
 	for rows.Next() {
 		var u models.User
-		err = rows.Scan(&u.ID, &u.Nickname, &u.FirstName, &u.LastName, &u.RoleID)
+		err = rows.Scan(&u.ID, &u.Nickname, &u.RoleID)
 		if err != nil {
 			fmt.Println("SelectUsers rows.Scan ERROR:", err)
 			continue
@@ -34,14 +34,14 @@ func (db *DataBase) SelectUsers() ([]models.User, error) {
 // SelectUserByID ...
 func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 	var u models.User
-	rows, err := db.DB.Query(`SELECT ID, Nickname, FirstName, LastName, RoleID FROM Users WHERE ID = ?`, userID)
+	rows, err := db.DB.Query(`SELECT ID, Nickname, RoleID FROM Users WHERE ID = ?`, userID)
 	if err != nil {
 		fmt.Println("SelectUserByID db.Query ERROR:", err)
 		return u, err
 	}
 	defer rows.Close()
 	if rows.Next() {
-		err = rows.Scan(&u.ID, &u.Nickname, &u.FirstName, &u.LastName, &u.RoleID)
+		err = rows.Scan(&u.ID, &u.Nickname, &u.RoleID)
 		if err != nil {
 			fmt.Println("SelectUserByID rows.Scan ERROR:", err)
 			return u, err

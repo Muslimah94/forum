@@ -24,7 +24,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		RoleID:   3, // role:"user"
 	}
 	ID, err := db.CreateUser(user)
-	if err.Error()[:6] == "UNIQUE" {
+	if err != nil && err.Error()[:6] == "UNIQUE" {
 		SendJSON(w, models.Error{
 			Status:      "Failed",
 			Description: "User with such a nickname already exists, please try another one",

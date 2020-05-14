@@ -24,12 +24,12 @@ type AuthorDTO struct {
 
 // CommentDTO ...
 type CommentDTO struct {
-	ID       int       `json:"id"`
-	Author   AuthorDTO `json:"author"`
-	PostID   int       `json:"post_id"`
-	Content  string    `json:"content"`
-	Likes    int       `json:"likes"`
-	Dislikes int       `json:"dislikes"`
+	ID       int             `json:"id"`
+	Author   AuthorDTO       `json:"author"`
+	PostID   int             `json:"post_id"`
+	Content  json.RawMessage `json:"content"`
+	Likes    int             `json:"likes"`
+	Dislikes int             `json:"dislikes"`
 }
 
 // CategoriesDTO ...

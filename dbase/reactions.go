@@ -83,6 +83,7 @@ func (db *DataBase) CreateReaction(new models.Reaction) error {
 
 // SelectReaction ...
 func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error) {
+	fmt.Println("Select reaction")
 	var existing models.Reaction
 	if new.PostID == 0 {
 		rows, err := db.DB.Query(`SELECT ID, Type, AuthorID, CommentID FROM Reactions WHERE AuthorID = ? AND CommentID = ?`, new.AuthorID, new.CommentID)
@@ -119,6 +120,7 @@ func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error)
 			return existing, err
 		}
 	}
+	fmt.Println("existing:", existing)
 	return existing, nil
 }
 
