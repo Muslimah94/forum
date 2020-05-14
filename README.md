@@ -9,11 +9,8 @@
 /api/reaction [POST] add like/dislike to DB (if like type=1, else type=0)
 /api/register [POST] user registration to forum
 
-sessii() get session by id, create session
 
-{get a row where email  = ?
-if there's no email return eroor
-check password
-if true create session
-write to cookie's value uuid
-MaxAge 3600
+/api/profile?id= [GET]
+/api/profile?id= [PUT]
+/api/login [] //nickname, password ()
+tranzakcii

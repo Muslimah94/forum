@@ -21,9 +21,16 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	//--------ENTITY for Users table----------------------
 	user := models.User{
 		Nickname: new.Nickname,
-		RoleID:   3,
+		RoleID:   3, // role:"user"
 	}
 	ID, err := db.CreateUser(user)
+	if err.Error()[:6] == "UNIQUE" {
+		SendJSON(w, models.Error{
+			Status:      "Failed",
+			Description: "User with such a nickname already exists, please try another one",
+		})
+		return
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -59,8 +66,9 @@ func SetCookie(w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err == http.ErrNoCookie {
 		cookie = &http.Cookie{
-			Name:     "logged-in_forum",
-			Value:    "1",
+			Name: "logged-in_forum",
+			//////
+			Value:    "1", //UUID
 			Expires:  time.Now().Add(time.Hour * 1),
 			Secure:   true,
 			HttpOnly: true,
@@ -77,12 +85,31 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	cookie = &http.Cookie{
-		Name:     "logged-in_forum",
-		Value:    "1",
-		MaxAge:   -1,
-		Secure:   true,
-		HttpOnly: true,
+		MaxAge: -1,
 	}
 	http.SetCookie(w, cookie)
 	return nil
+}
+
+func Test(w http.ResponseWriter, r *http.Request) {
+
+	for _, a := range r.Cookies() {
+		fmt.Println(a.Name)
+	}
+
+	cookie, err := r.Cookie("logged-in_forum")
+
+	if err == http.ErrNoCookie {
+		cookie = &http.Cookie{
+			Name:     "logged-in_forum",
+			Value:    "1",
+			Expires:  time.Now().Add(time.Minute * 1),
+			Secure:   true,
+			HttpOnly: true,
+		}
+	} else {
+		fmt.Println("1:", cookie.Value)
+	}
+	http.SetCookie(w, cookie)
+	fmt.Println("AAAAAAA")
 }

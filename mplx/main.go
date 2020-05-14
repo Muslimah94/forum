@@ -47,6 +47,9 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		handlers.RegisterLogin(db, w, r)
 	}
 
+	if p == "/api/test" {
+		handlers.Test(w, r)
+	}
 }
 
 func Middleware(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {

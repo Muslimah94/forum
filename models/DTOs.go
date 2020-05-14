@@ -1,17 +1,19 @@
 package models
 
+import "encoding/json"
+
 // PostDTO ...
 type PostDTO struct {
-	ID           int       `json:"id"`
-	Author       AuthorDTO `json:"author"`
-	Title        string    `json:"title"`
-	Content      []byte    `json:"content"`
-	Categories   []string  `json:"categories"`
-	Likes        int       `json:"likes"`
-	Dislikes     int       `json:"dislikes"`
-	Comments     int       `json:"comments"`
-	CategoriesID []int     `json:"categories_id"`
-	CreationDate int64     `json:"creation_date"`
+	ID           int             `json:"id"`
+	Author       AuthorDTO       `json:"author"`
+	Title        string          `json:"title"`
+	Content      json.RawMessage `json:"content"`
+	Categories   []string        `json:"categories"`
+	Likes        int             `json:"likes"`
+	Dislikes     int             `json:"dislikes"`
+	Comments     int             `json:"comments"`
+	CategoriesID []int           `json:"categories_id"`
+	CreationDate int64           `json:"creation_date"`
 }
 
 // AuthorDTO ...
@@ -48,4 +50,9 @@ type RegisterUser struct {
 	Email    string `json:"email"`
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
+}
+
+type Error struct {
+	Status      string `json:"status"`
+	Description string `json:"desciption"`
 }

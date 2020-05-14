@@ -9,26 +9,30 @@ import (
 
 // NewReaction ...
 func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var new models.ReactionDTO
-	err := ReceiveJSON(r, &new)
+	var rDTO models.ReactionDTO
+	err := ReceiveJSON(r, &rDTO)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	//-------ENTITY---------------
 	rea := models.Reaction{
-		AuthorID:  new.AuthorID,
-		Type:      new.Type,
-		PostID:    new.PostID,
-		CommentID: new.CommentID,
+		AuthorID:  rDTO.AuthorID,
+		Type:      rDTO.Type,
+		PostID:    rDTO.PostID,
+		CommentID: rDTO.CommentID,
 	}
-	n, err := db.SelectReaction(rea)
+	existing, err := db.SelectReaction(rea)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	if n == 0 {
+	if &existing == nil {
 		db.CreateReaction(rea)
 	} else {
-		db.UpdateReaction(rea)
+		if existing.Type != rDTO.Type {
+			db.UpdateReaction(rea)
+		} else {
+			db.DeleteReaction(rea)
+		}
 	}
 
 }
