@@ -56,7 +56,8 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 
 func (db *DataBase) SelectUser() {}
 
-func (db *DataBase) CreateUser(new models.User) (int, error) {
+func (db *DataBase) CreateUser(new models.User, tx db.Tx) (int, error) {
+	fmt.Println("CreateUSER")
 	n := 0
 	st, err := db.DB.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
 	defer st.Close()

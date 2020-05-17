@@ -23,22 +23,21 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		Nickname: new.Nickname,
 		RoleID:   3, // role:"user"
 	}
-	ID, err := db.CreateUser(user)
+	tx, err := db.DB.Begin()
+	ID, err := db.CreateUser(user, tx)
 	if err != nil && err.Error()[:6] == "UNIQUE" {
 		SendJSON(w, models.Error{
 			Status:      "Failed",
 			Description: "User with such a nickname already exists, please try another one",
 		})
-		return
-	}
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
 		return
 	}
 	//---------ENTITY for Credentials table---------------
 	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
 		return
 	}
 	cred := models.Credentials{
@@ -49,6 +48,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	err = db.CreateUserCredentials(cred)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
 		return
 	}
 
@@ -58,8 +58,10 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	err = SetCookie(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
 		return
 	}
+	tx.Commit()
 }
 
 func SetCookie(w http.ResponseWriter, r *http.Request) error {

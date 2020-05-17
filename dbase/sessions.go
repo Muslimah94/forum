@@ -11,6 +11,7 @@ import (
 
 // CreateSession ...
 func (db *DataBase) CreateSession(new models.Session) (uuid.UUID, error) {
+	fmt.Println("CreateSESSION")
 	var err error
 	new.UUID, err = uuid.NewV4()
 	if err != nil {

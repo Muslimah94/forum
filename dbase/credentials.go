@@ -7,6 +7,7 @@ import (
 )
 
 func (db *DataBase) CreateUserCredentials(new models.Credentials) error {
+	fmt.Println("CreateUserCREDENTIALS")
 	st, err := db.DB.Prepare(`INSERT INTO Credentials (ID, Email, HashedPassword) VALUES (?,?,?)`)
 	defer st.Close()
 	if err != nil {
