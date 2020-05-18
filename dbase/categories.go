@@ -1,6 +1,7 @@
 package dbase
 
 import (
+	"database/sql"
 	"fmt"
 
 	models "../models"
@@ -84,9 +85,9 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 }
 
 // AssociateCategory ...
-func (db *DataBase) AssociateCategory(pID, cID int) error {
+func (db *DataBase) AssociateCategory(pID, cID int, tx *sql.Tx) error {
 
-	st, err := db.DB.Prepare(`INSERT INTO PostCats (PostID, CategoryID) VALUES (?,?)`)
+	st, err := tx.Prepare(`INSERT INTO PostCats (PostID, CategoryID) VALUES (?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("AssociateCategory Prepare", err)

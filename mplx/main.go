@@ -38,17 +38,17 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 
 	//-----------RACTIONS----------------------------------
-	if p == "/api/reaction" && m == "POST" {
-		handlers.NewReaction(db, w, r)
+	if p == "/api/reaction" {
+		if m == "POST" {
+			handlers.NewReaction(db, w, r)
+		} else if m == "GET" {
+			handlers.FindReaction(db, w, r)
+		}
 	}
 
 	//------------USER----------------------------------
 	if p == "/api/register" && m == "POST" {
 		handlers.RegisterLogin(db, w, r)
-	}
-
-	if p == "/api/test" {
-		handlers.Test(w, r)
 	}
 }
 

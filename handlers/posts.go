@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -141,12 +142,25 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	post.AuthorID = new.Author.ID
 	post.Title = new.Title
 	post.Content = new.Content
-	ID, err := db.CreatePost(post)
+	//-------STARTING TRANSACTION--------
+	tx, err := db.DB.Begin()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("Cannot start transaction")
+		return
+	}
+	ID, err := db.CreatePost(post, tx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
 		return
 	}
 	for i := 0; i < len(new.CategoriesID); i++ {
-		db.AssociateCategory(ID, new.CategoriesID[i])
+		err = db.AssociateCategory(ID, new.CategoriesID[i], tx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			tx.Rollback()
+			return
+		}
 	}
 }

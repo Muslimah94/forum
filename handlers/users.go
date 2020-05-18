@@ -7,9 +7,11 @@ import (
 
 	dbase "../dbase"
 	models "../models"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// RegisterLogin ...
 func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	//-------DTO----------------------------------------
 	var new models.RegisterUser
@@ -67,8 +69,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		return
 	}
-	fmt.Println("Last created session's UUID:", UUID)
-	err = SetCookie(w, r)
+	err = SetCookie(w, r, UUID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
@@ -77,13 +78,13 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func SetCookie(w http.ResponseWriter, r *http.Request) error {
+// SetCookie ...
+func SetCookie(w http.ResponseWriter, r *http.Request, UUID uuid.UUID) error {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err == http.ErrNoCookie {
 		cookie = &http.Cookie{
-			Name: "logged-in_forum",
-			//////
-			Value:    "1", //UUID
+			Name:     "logged-in_forum",
+			Value:    UUID.String(),
 			Expires:  time.Now().Add(time.Hour * 1),
 			Secure:   true,
 			HttpOnly: true,
@@ -93,10 +94,11 @@ func SetCookie(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// DeleteCookie ...
 func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err != nil {
-		fmt.Println("DeleteCookie error:")
+		fmt.Println("DeleteCookie:", err)
 		return err
 	}
 	cookie = &http.Cookie{
@@ -104,27 +106,4 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
 	}
 	http.SetCookie(w, cookie)
 	return nil
-}
-
-func Test(w http.ResponseWriter, r *http.Request) {
-
-	for _, a := range r.Cookies() {
-		fmt.Println(a.Name)
-	}
-
-	cookie, err := r.Cookie("logged-in_forum")
-
-	if err == http.ErrNoCookie {
-		cookie = &http.Cookie{
-			Name:     "logged-in_forum",
-			Value:    "1",
-			Expires:  time.Now().Add(time.Minute * 1),
-			Secure:   true,
-			HttpOnly: true,
-		}
-	} else {
-		fmt.Println("1:", cookie.Value)
-	}
-	http.SetCookie(w, cookie)
-	fmt.Println("AAAAAAA")
 }

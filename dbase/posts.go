@@ -1,6 +1,7 @@
 package dbase
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -48,10 +49,10 @@ func (db *DataBase) SelectPost(postID int) (models.Post, error) {
 }
 
 // CreatePost ...
-func (db *DataBase) CreatePost(new models.Post) (int, error) {
+func (db *DataBase) CreatePost(new models.Post, tx *sql.Tx) (int, error) {
 	n := 0
 	d := time.Now().Unix()
-	st, err := db.DB.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
+	st, err := tx.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("CreatePost Prepare", err)
