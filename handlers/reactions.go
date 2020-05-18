@@ -37,26 +37,3 @@ func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-
-// FindReaction ...
-func FindReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	var rDTO models.ReactionDTO
-	err := ReceiveJSON(r, &rDTO)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	//-------ENTITY---------------
-	rea := models.Reaction{
-		AuthorID:  rDTO.AuthorID,
-		Type:      rDTO.Type,
-		PostID:    rDTO.PostID,
-		CommentID: rDTO.CommentID,
-	}
-	existing, err := db.SelectReaction(rea)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	SendJSON(w, existing)
-}

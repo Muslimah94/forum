@@ -3,11 +3,9 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	dbase "../dbase"
 	models "../models"
-	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -78,36 +76,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// SetCookie ...
-func SetCookie(w http.ResponseWriter, r *http.Request, UUID uuid.UUID) error {
-	cookie, err := r.Cookie("logged-in_forum")
-	if err == http.ErrNoCookie {
-		cookie = &http.Cookie{
-			Name:     "logged-in_forum",
-			Value:    UUID.String(),
-			Expires:  time.Now().Add(time.Hour * 1),
-			Secure:   true,
-			HttpOnly: true,
-		}
-	}
-	http.SetCookie(w, cookie)
-	return nil
-}
-
-// DeleteCookie ...
-func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
-	cookie, err := r.Cookie("logged-in_forum")
-	if err != nil {
-		fmt.Println("DeleteCookie:", err)
-		return err
-	}
-	cookie = &http.Cookie{
-		MaxAge: -1,
-	}
-	http.SetCookie(w, cookie)
-	return nil
-}
-
+// LogIn ...
 func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	//-------DTO----------------------------------------
 	var new models.CredDTO
@@ -126,31 +95,51 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		Email:          new.Email,
 		HashedPassword: string(HashedPW),
 	}
-	existing, err := db.SelectUserCredentials(cred)
-
-	//------------SERIK CHECK PLS THIS SECTION---------------------
+	exisCr, err := db.SelectUserCredentials(cred)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if existing.ID == 0 {
+	if exisCr.ID == 0 {
 		SendJSON(w, models.Error{
 			Status:      "Failed to login",
-			Description: "In order to log in, please, register first. It won't take a lot of time",
+			Description: "Email or password is incorrect",
 		})
 		return
 	}
-	//--------------------------------------------------------------
-	session := models.Session{UserID: existing.ID}
-	existing, err := db.SelectUserSession(session)
+	if cred.HashedPassword != exisCr.HashedPassword {
+		SendJSON(w, models.Error{
+			Status:      "Failed to login",
+			Description: "Email or password is incorrect",
+		})
+		return
+	}
+	session := models.Session{UserID: exisCr.ID}
+	// Checking is there a session with given UserID
+	exisSes, err := db.SelectUserSession(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	tx, err := db.DB.Begin()
+	// if there's no session, we'll create it and set cookie
+	if exisSes.ID == 0 {
+		UUID, err := db.CreateSession(session, tx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		SetCookie(w, r, UUID)
+		return
+	} else if exisSes.ID != 0 && CheckCookie(r) {
+		//db.UpdateSessionDate(exisSes, tx) // ExpDate is updated
+	} else if exisSes.ID != 0 && !CheckCookie(r) {
+		//db.UpdateSession(exisSes, tx)
 	}
 	err = SetCookie(w, r, UUID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	return
+
 }

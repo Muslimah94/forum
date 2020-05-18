@@ -34,6 +34,7 @@ func (db *DataBase) CreateSession(new models.Session, tx *sql.Tx) (uuid.UUID, er
 	return new.UUID, nil
 }
 
+// SelectUserSession ...
 func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error) {
 
 	var existing models.Session
@@ -56,6 +57,22 @@ func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error
 	return existing, nil
 }
 
+// CompareExpDate ...
 func (db *DataBase) CompareExpDate(new models.Session) bool {
 	return new.ExpDate < time.Now().Unix()
+}
+
+// UpdateSession ...
+func (db *DataBase) UpdateSession(new models.Session, tx *sql.Tx) {
+	stmt, err := tx.Prepare(`UPDATE Sessions SET UUID = ?, ExpDate = ? WHERE UserID = ?`)
+	if err != nil {
+		fmt.Println("UpdateSession Prepare[comment]", err)
+		return err
+	}
+	_, err = stmt.Exec(new.Type, new.AuthorID, new.CommentID)
+	if err != nil {
+		fmt.Println("UpdateSession Exec[comment]", err)
+		return err
+	}
+	defer stmt.Close()
 }
