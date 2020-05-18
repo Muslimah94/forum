@@ -14,6 +14,7 @@ type PostDTO struct {
 	Comments     int             `json:"comments"`
 	CategoriesID []int           `json:"categories_id"`
 	CreationDate int64           `json:"creation_date"`
+	UserReaction int             `json:"user_reaction"`
 }
 
 // AuthorDTO ...
@@ -24,12 +25,13 @@ type AuthorDTO struct {
 
 // CommentDTO ...
 type CommentDTO struct {
-	ID       int             `json:"id"`
-	Author   AuthorDTO       `json:"author"`
-	PostID   int             `json:"post_id"`
-	Content  json.RawMessage `json:"content"`
-	Likes    int             `json:"likes"`
-	Dislikes int             `json:"dislikes"`
+	ID           int             `json:"id"`
+	Author       AuthorDTO       `json:"author"`
+	PostID       int             `json:"post_id"`
+	Content      json.RawMessage `json:"content"`
+	Likes        int             `json:"likes"`
+	Dislikes     int             `json:"dislikes"`
+	UserReaction int             `json:"user_reaction"`
 }
 
 // CategoriesDTO ...
