@@ -107,3 +107,50 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
 	http.SetCookie(w, cookie)
 	return nil
 }
+
+func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	//-------DTO----------------------------------------
+	var new models.CredDTO
+	err := ReceiveJSON(r, &new)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//--------ENTITY for Credentials table----------------------
+	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	cred := models.Credentials{
+		Email:          new.Email,
+		HashedPassword: string(HashedPW),
+	}
+	existing, err := db.SelectUserCredentials(cred)
+
+	//------------SERIK CHECK PLS THIS SECTION---------------------
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if existing.ID == 0 {
+		SendJSON(w, models.Error{
+			Status:      "Failed to login",
+			Description: "In order to log in, please, register first. It won't take a lot of time",
+		})
+		return
+	}
+	//--------------------------------------------------------------
+	session := models.Session{UserID: existing.ID}
+	existing, err := db.SelectUserSession(session)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = SetCookie(w, r, UUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	return
+}

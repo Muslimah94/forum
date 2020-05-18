@@ -36,7 +36,6 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if p == "/api/categories" && m == "GET" {
 		handlers.GetCategories(db, w, r)
 	}
-
 	//-----------RACTIONS----------------------------------
 	if p == "/api/reaction" {
 		if m == "POST" {
@@ -45,10 +44,13 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			handlers.FindReaction(db, w, r)
 		}
 	}
-
 	//------------USER----------------------------------
 	if p == "/api/register" && m == "POST" {
 		handlers.RegisterLogin(db, w, r)
+	}
+	//------------LOGIN---------------------------------
+	if p == "/api/login" && m == "POST" {
+		handlers.LogIn(db, w, r)
 	}
 }
 

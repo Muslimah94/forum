@@ -56,3 +56,9 @@ type Error struct {
 	Status      string `json:"status"`
 	Description string `json:"desciption"`
 }
+
+type CredDTO struct {
+	ID       int    `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"hashed_password"`
+}
