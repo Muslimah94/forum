@@ -24,6 +24,11 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		RoleID:   3, // role:"user"
 	}
 	tx, err := db.DB.Begin()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("Cannot start transaction")
+		return
+	}
 	ID, err := db.CreateUser(user, tx)
 	if err != nil && err.Error()[:6] == "UNIQUE" {
 		SendJSON(w, models.Error{
@@ -32,28 +37,36 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		})
 		tx.Rollback()
 		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
+		return
 	}
-	//---------ENTITY for Credentials table---------------
 	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
+	//---------ENTITY for Credentials table---------------
 	cred := models.Credentials{
 		ID:             ID,
 		Email:          new.Email,
 		HashedPassword: string(HashedPW),
 	}
-	err = db.CreateUserCredentials(cred)
+	err = db.CreateUserCredentials(cred, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
-
 	session := models.Session{UserID: ID}
-	UUID, err := db.CreateSession(session)
+	UUID, err := db.CreateSession(session, tx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		tx.Rollback()
+		return
+	}
 	fmt.Println("Last created session's UUID:", UUID)
 	err = SetCookie(w, r)
 	if err != nil {
@@ -61,7 +74,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		return
 	}
-	tx.Commit()
+	return
 }
 
 func SetCookie(w http.ResponseWriter, r *http.Request) error {

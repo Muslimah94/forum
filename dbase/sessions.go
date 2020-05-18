@@ -1,6 +1,7 @@
 package dbase
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -10,7 +11,7 @@ import (
 )
 
 // CreateSession ...
-func (db *DataBase) CreateSession(new models.Session) (uuid.UUID, error) {
+func (db *DataBase) CreateSession(new models.Session, tx *sql.Tx) (uuid.UUID, error) {
 	fmt.Println("CreateSESSION")
 	var err error
 	new.UUID, err = uuid.NewV4()
@@ -19,7 +20,7 @@ func (db *DataBase) CreateSession(new models.Session) (uuid.UUID, error) {
 		return new.UUID, err
 	}
 	new.ExpDate = time.Now().Add(time.Hour * 1).Unix()
-	st, err := db.DB.Prepare(`INSERT INTO Sessions (UserID, UUID, ExpDate) VALUES (?,?,?)`)
+	st, err := tx.Prepare(`INSERT INTO Sessions (UserID, UUID, ExpDate) VALUES (?,?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("CreateSession Prepare", err)

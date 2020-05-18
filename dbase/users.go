@@ -1,6 +1,7 @@
 package dbase
 
 import (
+	"database/sql"
 	"fmt"
 
 	models "../models"
@@ -56,23 +57,26 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 
 func (db *DataBase) SelectUser() {}
 
-func (db *DataBase) CreateUser(new models.User, tx db.Tx) (int, error) {
+func (db *DataBase) CreateUser(new models.User, tx *sql.Tx) (int, error) {
 	fmt.Println("CreateUSER")
 	n := 0
-	st, err := db.DB.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
+	st, err := tx.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("CreateUser Prepare", err)
+		tx.Rollback()
 		return n, err
 	}
 	_, err = st.Exec(new.Nickname, new.RoleID)
 	if err != nil {
 		fmt.Println("CreateUser Exec", err)
+		tx.Rollback()
 		return n, err
 	}
 	n, err = db.ReturnLastUserID()
 	if err != nil {
 		fmt.Println("CreateUser Exec", err)
+		tx.Rollback()
 		return n, err
 	}
 	return n, nil
