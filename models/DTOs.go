@@ -62,5 +62,5 @@ type Error struct {
 type CredDTO struct {
 	ID       int    `json:"id"`
 	Email    string `json:"email"`
-	Password string `json:"hashed_password"`
+	Password string `json:"password"`
 }

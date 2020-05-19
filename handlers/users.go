@@ -146,6 +146,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println(exisSes)
 	if exisSes.ID == 0 { // if there's no session, we'll create it and set cookie
 		exisSes.UUID, err = db.CreateSession(session, tx)
 		if err != nil {
@@ -158,12 +159,14 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
 	if CheckCookie(r, exisSes) { //if browser is the same ExpDate need to be updated only
+		fmt.Println("same cookie")
 		err = db.UpdateSessionDate(exisSes, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else { // if browser isn't the same, session need to be updated totally
+		fmt.Println("not the same cookie")
 		exisSes.UUID, err = uuid.NewV4()
 		err = db.UpdateSession(exisSes, tx)
 		if err != nil {
