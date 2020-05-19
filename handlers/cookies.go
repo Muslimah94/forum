@@ -31,9 +31,9 @@ func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 }
 
 // CheckCookie ...
-func CheckCookie(r *http.Request) bool {
+func CheckCookie(r *http.Request, exisSes models.Session) bool {
 	cookie, err := r.Cookie("logged-in_forum")
-	if err == http.ErrNoCookie || cookie.Value == "" {
+	if err == http.ErrNoCookie || cookie.Value == "" || cookie.Value != exisSes.UUID.String() {
 		return false
 	}
 	return true

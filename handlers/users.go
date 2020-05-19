@@ -168,7 +168,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	} else if exisSes.ID != 0 && !CheckCookie(r) { // UUID & ExpDate need to be updated when user logs in from another browser
+	} else if exisSes.ID != 0 && !CheckCookie(r, exisSes) { // UUID & ExpDate need to be updated when user logs in from another browser
 		exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
 		exisSes.UUID, err = uuid.NewV4()
 		err = db.UpdateSession(exisSes, tx)
