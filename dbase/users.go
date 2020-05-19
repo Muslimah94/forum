@@ -55,28 +55,24 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 	return u, nil
 }
 
-func (db *DataBase) SelectUser() {}
-
-func (db *DataBase) CreateUser(new models.User, tx *sql.Tx) (int, error) {
-	fmt.Println("CreateUSER")
+// InsertUser ...
+func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int, error) {
+	fmt.Println("InsertUSER")
 	n := 0
 	st, err := tx.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
 	defer st.Close()
 	if err != nil {
 		fmt.Println("CreateUser Prepare", err)
-		tx.Rollback()
 		return n, err
 	}
 	_, err = st.Exec(new.Nickname, new.RoleID)
 	if err != nil {
 		fmt.Println("CreateUser Exec", err)
-		tx.Rollback()
 		return n, err
 	}
 	n, err = db.ReturnLastUserID()
 	if err != nil {
 		fmt.Println("CreateUser Exec", err)
-		tx.Rollback()
 		return n, err
 	}
 	return n, nil
@@ -104,6 +100,8 @@ func (db *DataBase) ReturnLastUserID() (int, error) {
 	}
 	return n, nil
 }
+
+func (db *DataBase) SelectUser() {}
 
 // // AddNewUser ...
 // func AddNewUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {

@@ -37,12 +37,8 @@ func Multiplexer(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		handlers.GetCategories(db, w, r)
 	}
 	//-----------RACTIONS----------------------------------
-	if p == "/api/reaction" {
-		if m == "POST" {
-			handlers.NewReaction(db, w, r)
-		} else if m == "GET" {
-			handlers.FindReaction(db, w, r)
-		}
+	if p == "/api/reaction" && m == "POST" {
+		handlers.NewReaction(db, w, r)
 	}
 	//------------USER----------------------------------
 	if p == "/api/register" && m == "POST" {

@@ -3,9 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	dbase "../dbase"
 	models "../models"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,7 +31,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Cannot start transaction")
 		return
 	}
-	ID, err := db.CreateUser(user, tx)
+	ID, err := db.InsertUser(user, tx)
 	if err != nil && err.Error()[:6] == "UNIQUE" {
 		SendJSON(w, models.Error{
 			Status:      "Failed",
@@ -54,25 +56,26 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		Email:          new.Email,
 		HashedPassword: string(HashedPW),
 	}
-	err = db.CreateUserCredentials(cred, tx)
+	err = db.InsertUserCredentials(cred, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
 	session := models.Session{UserID: ID}
-	UUID, err := db.CreateSession(session, tx)
+	session.UUID, err = db.CreateSession(session, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
-	err = SetCookie(w, r, UUID)
+	err = SetCookie(w, r, session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
+	tx.Commit()
 	return
 }
 
@@ -115,31 +118,54 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session := models.Session{UserID: exisCr.ID}
-	// Checking is there a session with given UserID
-	exisSes, err := db.SelectUserSession(session)
+
+	exisSes, err := db.SelectUserSession(session) // Checking is there a session with the given UserID
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tx, err := db.DB.Begin()
-	// if there's no session, we'll create it and set cookie
-	if exisSes.ID == 0 {
-		UUID, err := db.CreateSession(session, tx)
+	tx, err := db.DB.Begin() // Starting a transaction in DB
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if exisSes.ID == 0 { // if there's no session, we'll create it and set cookie
+		exisSes.UUID, err = db.CreateSession(session, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		SetCookie(w, r, UUID)
+		SetCookie(w, r, exisSes)
+		tx.Commit()
 		return
-	} else if exisSes.ID != 0 && CheckCookie(r) {
-		//db.UpdateSessionDate(exisSes, tx) // ExpDate is updated
-	} else if exisSes.ID != 0 && !CheckCookie(r) {
-		//db.UpdateSession(exisSes, tx)
-	}
-	err = SetCookie(w, r, UUID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	} else if exisSes.ID != 0 && CheckCookie(r) { // ExpDate need to be updated when user logs in from the same browser
+		exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
+		err = db.UpdateSessionDate(exisSes, tx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tx.Commit()
+		err = SetCookie(w, r, exisSes) // Cookie with updated life time should be set
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else if exisSes.ID != 0 && !CheckCookie(r) { // UUID & ExpDate need to be updated when user logs in from another browser
+		exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
+		exisSes.UUID, err = uuid.NewV4()
+		err = db.UpdateSession(exisSes, tx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tx.Commit()
+		err = SetCookie(w, r, exisSes) // Cookie with updated life time and UUID should be set in order to prevent authorization from earlier browser
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 }

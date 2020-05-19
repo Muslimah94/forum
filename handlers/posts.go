@@ -10,6 +10,7 @@ import (
 	models "../models"
 )
 
+// GetAllPosts ...
 func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	//-------ENTITY---------------------------------------------------------
 	posts, err := db.SelectPosts()
@@ -72,6 +73,7 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	SendJSON(w, &DTOs)
 }
 
+// GetPostByID ...
 func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	p, ok := r.URL.Query()["id"]
 	if !ok || len(p[0]) < 1 {
@@ -86,7 +88,7 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//----------ENTITY---------------------------------------------------------------
-	post, err := db.SelectPost(postID)
+	post, err := db.SelectPostByID(postID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -128,9 +130,11 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	postDTO.CreationDate = post.CreationDate
 	SendJSON(w, &postDTO)
 }
 
+// NewPost ...
 func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	var new models.PostDTO
 	err := ReceiveJSON(r, &new)
@@ -163,4 +167,5 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	tx.Commit()
 }

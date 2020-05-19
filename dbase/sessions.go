@@ -12,7 +12,6 @@ import (
 
 // CreateSession ...
 func (db *DataBase) CreateSession(new models.Session, tx *sql.Tx) (uuid.UUID, error) {
-	fmt.Println("CreateSESSION")
 	var err error
 	new.UUID, err = uuid.NewV4()
 	if err != nil {
@@ -31,7 +30,7 @@ func (db *DataBase) CreateSession(new models.Session, tx *sql.Tx) (uuid.UUID, er
 		fmt.Println("CreateSession Exec", err)
 		return new.UUID, err
 	}
-	return new.UUID, nil
+	return new.UUID, err
 }
 
 // SelectUserSession ...
@@ -57,22 +56,39 @@ func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error
 	return existing, nil
 }
 
-// CompareExpDate ...
-func (db *DataBase) CompareExpDate(new models.Session) bool {
-	return new.ExpDate < time.Now().Unix()
-}
-
 // UpdateSession ...
-func (db *DataBase) UpdateSession(new models.Session, tx *sql.Tx) {
+func (db *DataBase) UpdateSession(new models.Session, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE Sessions SET UUID = ?, ExpDate = ? WHERE UserID = ?`)
 	if err != nil {
 		fmt.Println("UpdateSession Prepare[comment]", err)
 		return err
 	}
-	_, err = stmt.Exec(new.Type, new.AuthorID, new.CommentID)
+	_, err = stmt.Exec(new.UUID, new.ExpDate, new.UserID)
 	if err != nil {
 		fmt.Println("UpdateSession Exec[comment]", err)
 		return err
 	}
 	defer stmt.Close()
+	return err
 }
+
+// UpdateSession ...
+func (db *DataBase) UpdateSessionDate(new models.Session, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE Sessions SET ExpDate = ? WHERE UserID = ?`)
+	if err != nil {
+		fmt.Println("UpdateSession Prepare[comment]", err)
+		return err
+	}
+	_, err = stmt.Exec(new.ExpDate, new.UserID)
+	if err != nil {
+		fmt.Println("UpdateSession Exec[comment]", err)
+		return err
+	}
+	defer stmt.Close()
+	return err
+}
+
+// CompareExpDate ...
+// func (db *DataBase) CompareExpDate(new models.Session) bool {
+// 	return new.ExpDate < time.Now().Unix()
+// }
