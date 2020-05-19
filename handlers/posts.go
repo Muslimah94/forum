@@ -132,6 +132,8 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	postDTO.CreationDate = post.CreationDate
 	SendJSON(w, &postDTO)
+
+	db.SelectReaction(models.Reaction{})
 }
 
 // NewPost ...

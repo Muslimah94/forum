@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -33,7 +34,16 @@ func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 // CheckCookie ...
 func CheckCookie(r *http.Request, exisSes models.Session) bool {
 	cookie, err := r.Cookie("logged-in_forum")
-	if err == http.ErrNoCookie || cookie.Value == "" || cookie.Value != exisSes.UUID.String() {
+	if err == http.ErrNoCookie {
+		fmt.Println("no cookie")
+		return false
+	}
+	if cookie.Value == "" {
+		fmt.Println("empty value cookie")
+		return false
+	}
+	if cookie.Value != exisSes.UUID.String() {
+		fmt.Println("doesn't match uuid")
 		return false
 	}
 	return true
