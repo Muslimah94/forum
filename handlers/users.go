@@ -52,17 +52,24 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	//---------ENTITY for Credentials table---------------
 	cred := models.Credentials{
-		ID:             ID,
+		ID:             int(ID),
 		Email:          new.Email,
 		HashedPassword: string(HashedPW),
 	}
 	err = db.InsertUserCredentials(cred, tx)
-	if err != nil {
+	if err != nil && err.Error()[:6] == "UNIQUE" {
+		SendJSON(w, models.Error{
+			Status:      "Failed",
+			Description: "User with such a nickname already exists, please try another one",
+		})
+		tx.Rollback()
+		return
+	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
 	}
-	session := models.Session{UserID: ID}
+	session := models.Session{UserID: int(ID)}
 	session.UUID, err = db.CreateSession(session, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -56,46 +56,23 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 }
 
 // InsertUser ...
-func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int, error) {
+func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
 	fmt.Println("InsertUSER")
-	n := 0
+	var n int64
 	st, err := tx.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
 	defer st.Close()
 	if err != nil {
-		fmt.Println("CreateUser Prepare", err)
+		fmt.Println("InsertUser Prepare", err)
 		return n, err
 	}
-	_, err = st.Exec(new.Nickname, new.RoleID)
+	res, err := st.Exec(new.Nickname, new.RoleID)
 	if err != nil {
-		fmt.Println("CreateUser Exec", err)
+		fmt.Println("InsertUser Exec", err)
 		return n, err
 	}
-	n, err = db.ReturnLastUserID()
+	n, err = res.LastInsertId()
 	if err != nil {
-		fmt.Println("CreateUser Exec", err)
-		return n, err
-	}
-	return n, nil
-}
-
-// ReturnLastUserID ...
-func (db *DataBase) ReturnLastUserID() (int, error) {
-	n := 0
-	rows, err := db.DB.Query(`SELECT ID FROM Users ORDER BY ID DESC LIMIT 1`)
-	defer rows.Close()
-	if err != nil {
-		fmt.Println("ReturnLastUserID Query:", err)
-		return n, err
-	}
-	for rows.Next() {
-		err = rows.Scan(&n)
-		if err != nil {
-			fmt.Println("ReturnLastUserID rows.Scan:", err)
-			continue
-		}
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println("ReturnLastUserID rows:", err)
+		fmt.Println("InsertUser Exec", err)
 		return n, err
 	}
 	return n, nil
