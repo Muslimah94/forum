@@ -74,7 +74,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if err != nil && err.Error()[:6] == "UNIQUE" {
 		SendJSON(w, models.Error{
 			Status:      "Failed",
-			Description: "User with such a nickname already exists, please try another one",
+			Description: "User with such an email already exists, please try another one",
 		})
 		tx.Rollback()
 		return
@@ -125,6 +125,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exisCr.ID == 0 {
+		fmt.Println("no user")
 		SendJSON(w, models.Error{
 			Status:      "Failed to login",
 			Description: "Email or password is incorrect",
@@ -132,6 +133,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if cred.HashedPassword != exisCr.HashedPassword {
+		fmt.Println("password isn't correct")
 		SendJSON(w, models.Error{
 			Status:      "Failed to login",
 			Description: "Email or password is incorrect",

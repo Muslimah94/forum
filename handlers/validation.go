@@ -5,7 +5,7 @@ import (
 )
 
 func validPass(s string) bool {
-	if len(s) < 5 && len(s) > 20 {
+	if len(s) < 5 || len(s) > 20 {
 		return false
 	}
 	letters := "abcdefghijklmnopqrstuvwxyz"
@@ -25,6 +25,9 @@ func validPass(s string) bool {
 }
 
 func validNick(s string) bool {
+	if len(s) < 5 || len(s) > 20 {
+		return false
+	}
 	validstr := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`-=~!@#$%^&*()_+\\|/? {}[]"
 	for _, r := range s {
 		if !strings.Contains(validstr, string(r)) {
