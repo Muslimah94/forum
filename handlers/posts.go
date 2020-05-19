@@ -131,9 +131,22 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	postDTO.CreationDate = post.CreationDate
-	SendJSON(w, &postDTO)
 
-	//db.SelectReaction(models.Reaction{AuthorID: })
+	id, err := GetUserIDBySession(db, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	reaction, err := db.SelectReaction(models.Reaction{
+		AuthorID: id,
+		PostID:   post.ID,
+	})
+	if reaction.AuthorID == 0 {
+		postDTO.UserReaction = -1
+	} else {
+		postDTO.UserReaction = reaction.Type
+	}
+	SendJSON(w, &postDTO)
 }
 
 // NewPost ...
