@@ -20,6 +20,20 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if !validNick(new.Nickname) {
+		SendJSON(w, models.Error{
+			Status:      "Failed",
+			Description: "Allowed nickname length is 5-20 symbols. Nickname should contain the Latin alphabet, numbers and given special characters only: `-=~!@#$%^&*()_+\\|/? {}[]",
+		})
+		return
+	}
+	if !validPass(new.Password) {
+		SendJSON(w, models.Error{
+			Status:      "Failed",
+			Description: "Allowed password length is 5-20 symbols. Password should contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 special character",
+		})
+		return
+	}
 	//--------ENTITY for Users table----------------------
 	user := models.User{
 		Nickname: new.Nickname,
