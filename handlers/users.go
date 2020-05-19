@@ -110,14 +110,9 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//--------ENTITY for Credentials table----------------------
-	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	cred := models.Credentials{
 		Email:          new.Email,
-		HashedPassword: string(HashedPW),
+		HashedPassword: new.Password,
 	}
 	exisCr, err := db.SelectUserCredentials(cred)
 	if err != nil {
@@ -125,15 +120,15 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exisCr.ID == 0 {
-		fmt.Println("no user")
 		SendJSON(w, models.Error{
 			Status:      "Failed to login",
 			Description: "Email or password is incorrect",
 		})
 		return
 	}
-	if cred.HashedPassword != exisCr.HashedPassword {
-		fmt.Println("password isn't correct")
+	err = bcrypt.CompareHashAndPassword([]byte(exisCr.HashedPassword), []byte(new.Password))
+	if err != nil {
+		fmt.Println(err)
 		SendJSON(w, models.Error{
 			Status:      "Failed to login",
 			Description: "Email or password is incorrect",
@@ -141,7 +136,6 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session := models.Session{UserID: exisCr.ID}
-
 	exisSes, err := db.SelectUserSession(session) // Checking is there a session with the given UserID
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -152,7 +146,6 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	if exisSes.ID == 0 { // if there's no session, we'll create it and set cookie
 		exisSes.UUID, err = db.CreateSession(session, tx)
 		if err != nil {
