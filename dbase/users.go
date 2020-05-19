@@ -78,7 +78,28 @@ func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
 	return n, nil
 }
 
-func (db *DataBase) SelectUser() {}
+// SelectUserBySession ...
+func (db *DataBase) SelectUserBySession(UUID string) (int, error) {
+	var id int
+	rows, err := db.DB.Query(`SELECT ID FROM Sessions WHERE UUID = ?`, UUID)
+	if err != nil {
+		fmt.Println("SelectUserBySession db.Query ERROR:", err)
+		return id, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			fmt.Println("SelectUserBySession rows.Scan ERROR:", err)
+			return id, err
+		}
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectUserBySession rows ERROR:", err)
+		return id, err
+	}
+	return id, nil
+}
 
 // // AddNewUser ...
 // func AddNewUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {

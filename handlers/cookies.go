@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	dbase "../dbase"
 	models "../models"
 )
 
@@ -13,18 +14,18 @@ func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err != nil {
 		cookie = &http.Cookie{
-			Name:     "logged-in_forum",
-			Value:    s.UUID.String(),
-			Expires:  time.Now().Add(time.Hour * 1),
-			Secure:   true,
+			Name:    "logged-in_forum",
+			Value:   s.UUID.String(),
+			Expires: time.Now().Add(time.Hour * 1),
+			//Secure:   true,
 			HttpOnly: true,
 		}
 	}
 	cookie = &http.Cookie{
-		Name:     "logged-in_forum",
-		Value:    s.UUID.String(),
-		Expires:  time.Now().Add(time.Hour * 1),
-		Secure:   true,
+		Name:    "logged-in_forum",
+		Value:   s.UUID.String(),
+		Expires: time.Now().Add(time.Hour * 1),
+		//Secure:   true,
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
@@ -47,6 +48,20 @@ func CheckCookie(r *http.Request, exisSes models.Session) bool {
 		return false
 	}
 	return true
+}
+
+// GetUserIDBySession ...
+func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
+	cookie, err := r.Cookie("logged-in_forum")
+	if err != http.ErrNoCookie {
+		return 0, err
+	}
+	UUID := cookie.Value
+	id, err := db.SelectUserBySession(UUID)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 // DeleteCookie ...

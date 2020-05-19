@@ -15,9 +15,14 @@ func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	id, err := GetUserIDBySession(db, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	//-------ENTITY---------------
 	rea := models.Reaction{
-		AuthorID:  rDTO.AuthorID,
+		AuthorID:  id,
 		Type:      rDTO.Type,
 		PostID:    rDTO.PostID,
 		CommentID: rDTO.CommentID,

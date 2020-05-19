@@ -144,8 +144,13 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	id, err := GetUserIDBySession(db, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	post := models.Post{}
-	post.AuthorID = new.Author.ID
+	post.AuthorID = id
 	post.Title = new.Title
 	post.Content = new.Content
 	//-------STARTING TRANSACTION--------

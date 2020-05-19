@@ -69,9 +69,14 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+	id, err := GetUserIDBySession(db, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	//--------ENTITY---------------------------------------
 	c := models.Comment{}
-	c.AuthorID = new.Author.ID
+	c.AuthorID = id
 	c.PostID = new.PostID
 	c.Content = new.Content
 	db.CreateComment(c)
