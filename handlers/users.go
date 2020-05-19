@@ -152,36 +152,30 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		SetCookie(w, r, exisSes)
 		tx.Commit()
+		SetCookie(w, r, exisSes)
 		return
-	} else if exisSes.ID != 0 && CheckCookie(r) { // ExpDate need to be updated when user logs in from the same browser
-		exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
+	}
+	exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
+	if CheckCookie(r, exisSes) { //if browser is the same ExpDate need to be updated only
 		err = db.UpdateSessionDate(exisSes, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tx.Commit()
-		err = SetCookie(w, r, exisSes) // Cookie with updated life time should be set
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else if exisSes.ID != 0 && !CheckCookie(r, exisSes) { // UUID & ExpDate need to be updated when user logs in from another browser
-		exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
+	} else { // if browser isn't the same, session need to be updated totally
 		exisSes.UUID, err = uuid.NewV4()
 		err = db.UpdateSession(exisSes, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tx.Commit()
-		err = SetCookie(w, r, exisSes) // Cookie with updated life time and UUID should be set in order to prevent authorization from earlier browser
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	}
+	tx.Commit()
+	err = SetCookie(w, r, exisSes) // Cookie with updated life time should be set
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 }
