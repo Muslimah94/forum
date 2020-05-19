@@ -162,7 +162,7 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for i := 0; i < len(new.CategoriesID); i++ {
-		err = db.AssociateCategory(ID, new.CategoriesID[i], tx)
+		err = db.AssociateCategory(int(ID), new.CategoriesID[i], tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			tx.Rollback()

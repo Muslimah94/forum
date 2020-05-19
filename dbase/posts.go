@@ -49,8 +49,8 @@ func (db *DataBase) SelectPostByID(postID int) (models.Post, error) {
 }
 
 // CreatePost ...
-func (db *DataBase) CreatePost(new models.Post, tx *sql.Tx) (int, error) {
-	n := 0
+func (db *DataBase) CreatePost(new models.Post, tx *sql.Tx) (int64, error) {
+	var n int64
 	d := time.Now().Unix()
 	st, err := tx.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
 	defer st.Close()
@@ -58,14 +58,14 @@ func (db *DataBase) CreatePost(new models.Post, tx *sql.Tx) (int, error) {
 		fmt.Println("CreatePost Prepare", err)
 		return n, err
 	}
-	_, err = st.Exec(new.AuthorID, new.Title, new.Content, d)
+	res, err := st.Exec(new.AuthorID, new.Title, new.Content, d)
 	if err != nil {
 		fmt.Println("CreatePost Exec", err)
 		return n, err
 	}
-	n, err = db.ReturnLastPostID()
+	n, err = res.LastInsertId()
 	if err != nil {
-		fmt.Println("CreatePost Exec", err)
+		fmt.Println("InsertUser Exec", err)
 		return n, err
 	}
 	return n, nil
