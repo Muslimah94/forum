@@ -32,6 +32,32 @@ func (db *DataBase) SelectPosts() ([]models.Post, error) {
 		return nil, err
 	}
 	return AllPosts, nil
+}
+
+// SelectCreatedPosts ...
+func (db *DataBase) SelectCreatedPosts(id int) ([]models.Post, error) {
+
+	rows, err := db.DB.Query(`SELECT * FROM Posts WHERE AuthorID = ?`, id)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("SelectPosts Query:", err)
+		return nil, err
+	}
+	var AllPosts []models.Post
+	for rows.Next() {
+		var p models.Post
+		err = rows.Scan(&p.ID, &p.AuthorID, &p.Title, &p.Content, &p.CreationDate)
+		if err != nil {
+			fmt.Println("SelectPosts rows.Scan:", err)
+			continue
+		}
+		AllPosts = append(AllPosts, p)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectPosts rows:", err)
+		return nil, err
+	}
+	return AllPosts, nil
 
 }
 

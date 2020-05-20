@@ -183,3 +183,28 @@ func (db *DataBase) DeleteReaction(new models.Reaction) error {
 	}
 	return nil
 }
+
+// SelectLikedPostsID ...
+func (db *DataBase) SelectLikedPostsIDs(id int) ([]int, error) {
+	var ar []int
+	rows, err := db.DB.Query(`SELECT PostID FROM Reactions WHERE AuthorID = ? AND Type = ?`, id, 1)
+	defer rows.Close()
+	if err != nil {
+		fmt.Println("SelectLikedPostsID Query:", err)
+		return ar, err
+	}
+	for rows.Next() {
+		var a int
+		err = rows.Scan(&a)
+		if err != nil {
+			fmt.Println("SelectLikedPostsID rows.Scan:", err)
+			continue
+		}
+		ar = append(ar, a)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectLikedPostsID rows:", err)
+		return ar, err
+	}
+	return ar, nil
+}
