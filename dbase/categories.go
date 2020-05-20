@@ -11,11 +11,11 @@ import (
 func (db *DataBase) SelectCategories() ([]models.PostCat, error) {
 	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
 	Categories ON PostCats.CategoryID = Categories.ID`)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectCategories Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	var pc []models.PostCat
 	for rows.Next() {
 		var p models.PostCat
@@ -37,11 +37,11 @@ func (db *DataBase) SelectCategories() ([]models.PostCat, error) {
 func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
 	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
 	Categories ON PostCats.CategoryID = Categories.ID WHERE PostCats.PostID = ?`, id)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectCategoriesByPostID Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	var pc []models.PostCat
 	for rows.Next() {
 		var p models.PostCat
@@ -62,11 +62,11 @@ func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
 // ReturnCategories ...
 func (db *DataBase) ReturnCategories() ([]string, error) {
 	rows, err := db.DB.Query(`SELECT Name FROM Categories`)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("ReturnCategories Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	cat := []string{}
 	for rows.Next() {
 		var a string
@@ -88,11 +88,11 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 func (db *DataBase) AssociateCategory(pID, cID int, tx *sql.Tx) error {
 
 	st, err := tx.Prepare(`INSERT INTO PostCats (PostID, CategoryID) VALUES (?,?)`)
-	defer st.Close()
 	if err != nil {
 		fmt.Println("AssociateCategory Prepare", err)
 		return err
 	}
+	defer st.Close()
 	_, err = st.Exec(pID, cID)
 	if err != nil {
 		fmt.Println("AssociateCategory Exec", err)

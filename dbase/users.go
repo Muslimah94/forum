@@ -60,11 +60,11 @@ func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
 	fmt.Println("InsertUSER")
 	var n int64
 	st, err := tx.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
-	defer st.Close()
 	if err != nil {
 		fmt.Println("InsertUser Prepare", err)
 		return n, err
 	}
+	defer st.Close()
 	res, err := st.Exec(new.Nickname, new.RoleID)
 	if err != nil {
 		fmt.Println("InsertUser Exec", err)
@@ -79,7 +79,7 @@ func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
 }
 
 // SelectUserBySession ...
-func (db *DataBase) SelectUserBySession(UUID string) (int, error) {
+func (db *DataBase) SelectUserIDBySession(UUID string) (int, error) {
 	var id int
 	rows, err := db.DB.Query(`SELECT ID FROM Sessions WHERE UUID = ?`, UUID)
 	if err != nil {

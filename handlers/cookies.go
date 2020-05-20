@@ -57,7 +57,7 @@ func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
 		return 0, err
 	}
 	UUID := cookie.Value
-	id, err := db.SelectUserBySession(UUID)
+	id, err := db.SelectUserIDBySession(UUID)
 	if err != nil {
 		return 0, err
 	}

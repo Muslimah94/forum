@@ -10,11 +10,11 @@ import (
 func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND PostID = ?`, t, postID)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("CountReactionsToPost Query:", err)
 		return 0, err
 	}
+	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&num)
 		if err != nil {
@@ -32,11 +32,11 @@ func (db *DataBase) CountReactionsToPost(t int, postID int) (int, error) {
 func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Reactions WHERE Type = ? AND CommentID = ?`, t, commentID)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("CountReactionsToComment Query:", err)
 		return 0, err
 	}
+	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&num)
 		if err != nil {
@@ -55,11 +55,11 @@ func (db *DataBase) InsertReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
 		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, CommentID) VALUES (?,?,?)`)
-		defer st.Close()
 		if err != nil {
 			fmt.Println("InsertReaction[comment] Prepare", err)
 			return err
 		}
+		defer st.Close()
 		_, err = st.Exec(new.AuthorID, new.Type, new.CommentID)
 		if err != nil {
 			fmt.Println("InsertReaction[comment] Exec", err)
@@ -67,11 +67,11 @@ func (db *DataBase) InsertReaction(new models.Reaction) error {
 		}
 	} else {
 		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID) VALUES (?,?,?)`)
-		defer st.Close()
 		if err != nil {
 			fmt.Println("InsertReaction[post] Prepare", err)
 			return err
 		}
+		defer st.Close()
 		_, err = st.Exec(new.AuthorID, new.Type, new.PostID)
 		if err != nil {
 			fmt.Println("InsertReaction[post] Exec", err)
@@ -86,11 +86,11 @@ func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error)
 	var existing models.Reaction
 	if new.PostID == 0 {
 		rows, err := db.DB.Query(`SELECT ID, Type, AuthorID, CommentID FROM Reactions WHERE AuthorID = ? AND CommentID = ?`, new.AuthorID, new.CommentID)
-		defer rows.Close()
 		if err != nil {
 			fmt.Println("SelectReaction Query[comment]:", err)
 			return existing, err
 		}
+		defer rows.Close()
 		if rows.Next() {
 			err = rows.Scan(&existing.ID, &existing.Type, &existing.AuthorID, &existing.CommentID)
 			if err != nil {
@@ -103,11 +103,11 @@ func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error)
 		}
 	} else {
 		rows, err := db.DB.Query(`SELECT ID, Type, AuthorID, PostID FROM Reactions WHERE AuthorID = ? AND PostID = ?`, new.AuthorID, new.PostID)
-		defer rows.Close()
 		if err != nil {
 			fmt.Println("SelectReaction Query[post]:", err)
 			return existing, err
 		}
+		defer rows.Close()
 		if rows.Next() {
 			err = rows.Scan(&existing.ID, &existing.Type, &existing.AuthorID, &existing.PostID)
 			if err != nil {
@@ -158,11 +158,11 @@ func (db *DataBase) DeleteReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
 		st, err := db.DB.Prepare(`DELETE FROM Reactions WHERE AuthorID = ? AND Type = ? AND CommentID = ?`)
-		defer st.Close()
 		if err != nil {
 			fmt.Println("DeleteReaction Prepare", err)
 			return err
 		}
+		defer st.Close()
 		_, err = st.Exec(new.AuthorID, new.Type, new.CommentID)
 		if err != nil {
 			fmt.Println("DeleteReaction Exec", err)
@@ -170,11 +170,11 @@ func (db *DataBase) DeleteReaction(new models.Reaction) error {
 		}
 	} else {
 		st, err := db.DB.Prepare(`DELETE FROM Reactions WHERE AuthorID = ? AND Type = ? AND PostID = ?`)
-		defer st.Close()
 		if err != nil {
 			fmt.Println("DeleteReaction Prepare", err)
 			return err
 		}
+		defer st.Close()
 		_, err = st.Exec(new.AuthorID, new.Type, new.PostID)
 		if err != nil {
 			fmt.Println("DeleteReaction Exec", err)
@@ -184,15 +184,15 @@ func (db *DataBase) DeleteReaction(new models.Reaction) error {
 	return nil
 }
 
-// SelectLikedPostsID ...
+// SelectLikedPostsIDs ...
 func (db *DataBase) SelectLikedPostsIDs(id int) ([]int, error) {
 	var ar []int
 	rows, err := db.DB.Query(`SELECT PostID FROM Reactions WHERE AuthorID = ? AND Type = ?`, id, 1)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectLikedPostsID Query:", err)
 		return ar, err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var a int
 		err = rows.Scan(&a)

@@ -20,11 +20,11 @@ func (db *DataBase) InsertSession(new models.Session, tx *sql.Tx) (uuid.UUID, er
 	}
 	new.ExpDate = time.Now().Add(time.Hour * 1).Unix()
 	st, err := tx.Prepare(`INSERT INTO Sessions (UserID, UUID, ExpDate) VALUES (?,?,?)`)
-	defer st.Close()
 	if err != nil {
 		fmt.Println("InsertSession Prepare", err)
 		return new.UUID, err
 	}
+	defer st.Close()
 	_, err = st.Exec(new.UserID, new.UUID, new.ExpDate)
 	if err != nil {
 		fmt.Println("InsertSession Exec", err)
@@ -38,11 +38,11 @@ func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error
 
 	var existing models.Session
 	rows, err := db.DB.Query(`SELECT ID, UserID, UUID, ExpDate FROM Sessions WHERE UserID = ?`, new.UserID)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectUserSession Query:", err)
 		return existing, err
 	}
+	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&existing.ID, &existing.UserID, &existing.UUID, &existing.ExpDate)
 		if err != nil {

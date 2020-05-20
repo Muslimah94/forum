@@ -1,6 +1,7 @@
 # forum\
 
 /api/register [POST] user registration to forum
+/api/login [POST] //nickname, password ()
 /api/posts [POST] create new post
 /api/posts?liked=0&created=0 [GET] get all posts
 /api/posts?liked=1&created=0 [GET] get liked posts
@@ -10,7 +11,7 @@
 /api/comments?post_id= [GET] get all comments to post by post id
 /api/categories [GET] get names of categories
 /api/reaction [POST] add like/dislike to DB (like type=1, dislike type=0)
-/api/login [POST] //nickname, password ()
+
 
 
 Will be implemented for ADVANCED FEATURES (optional task):

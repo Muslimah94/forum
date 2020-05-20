@@ -12,11 +12,11 @@ import (
 func (db *DataBase) SelectPosts() ([]models.Post, error) {
 
 	rows, err := db.DB.Query(`SELECT * FROM Posts`)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectPosts Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	var AllPosts []models.Post
 	for rows.Next() {
 		var p models.Post
@@ -38,11 +38,11 @@ func (db *DataBase) SelectPosts() ([]models.Post, error) {
 func (db *DataBase) SelectCreatedPosts(id int) ([]models.Post, error) {
 
 	rows, err := db.DB.Query(`SELECT * FROM Posts WHERE AuthorID = ?`, id)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("SelectPosts Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	var AllPosts []models.Post
 	for rows.Next() {
 		var p models.Post
@@ -79,11 +79,11 @@ func (db *DataBase) InsertPost(new models.Post, tx *sql.Tx) (int64, error) {
 	var n int64
 	d := time.Now().Unix()
 	st, err := tx.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
-	defer st.Close()
 	if err != nil {
 		fmt.Println("InsertPost Prepare", err)
 		return n, err
 	}
+	defer st.Close()
 	res, err := st.Exec(new.AuthorID, new.Title, new.Content, d)
 	if err != nil {
 		fmt.Println("InsertPost Exec", err)

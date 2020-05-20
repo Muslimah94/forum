@@ -20,16 +20,13 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	l, ok := r.URL.Query()["liked"]
 	if !ok || len(l[0]) < 1 {
 		log.Println("GetAllPosts: Url Param 'liked' is missing")
-		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
-		return
+		all = true
 	}
-	//--------FILTERING ---------------------------------------------
 	c, ok := r.URL.Query()["created"]
 	if !ok || len(c[0]) < 1 {
 		log.Println("GetAllPosts: Url Param 'liked' is missing")
-		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
-		return
 	}
+	//--------FILTERING ---------------------------------------------
 	UserID, err := GetUserIDBySession(db, r)
 	if l[0] == "0" && c[0] == "0" {
 		all = true
@@ -160,7 +157,7 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	p, ok := r.URL.Query()["id"]
 	if !ok || len(p[0]) < 1 {
 		log.Println("GetPostByID: Url Param 'id' is missing")
-		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
 		return
 	}
 	postID, err := strconv.Atoi(p[0])

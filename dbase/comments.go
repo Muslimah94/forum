@@ -11,11 +11,11 @@ import (
 func (db *DataBase) CountComments(postID int) (int, error) {
 	num := 0
 	rows, err := db.DB.Query(`SELECT COUNT(*) FROM Comments WHERE PostID = ?`, postID)
-	defer rows.Close()
 	if err != nil {
 		fmt.Println("CountComments Query:", err)
 		return 0, err
 	}
+	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&num)
 		if err != nil {
@@ -33,11 +33,11 @@ func (db *DataBase) CountComments(postID int) (int, error) {
 func (db *DataBase) SelectComments(postID int) ([]models.Comment, error) {
 
 	rows, err := db.DB.Query(`SELECT ID, AuthorID, PostID, Content FROM Comments WHERE PostID = ?`, postID)
-	defer rows.Close()
 	if err != nil {
 		log.Println("SelectComments Query:", err)
 		return nil, err
 	}
+	defer rows.Close()
 	var AllComments []models.Comment
 	for rows.Next() {
 		var p models.Comment
@@ -59,11 +59,11 @@ func (db *DataBase) SelectComments(postID int) ([]models.Comment, error) {
 func (db *DataBase) InsertComment(new models.Comment) error {
 
 	st, err := db.DB.Prepare(`INSERT INTO Comments (AuthorID, PostID, Content) VALUES (?,?,?)`)
-	defer st.Close()
 	if err != nil {
 		fmt.Println("InsertComment Prepare", err)
 		return err
 	}
+	defer st.Close()
 	_, err = st.Exec(new.AuthorID, new.PostID, new.Content)
 	if err != nil {
 		fmt.Println("InsertComment Exec", err)

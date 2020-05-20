@@ -38,6 +38,11 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		Nickname: new.Nickname,
 		RoleID:   3, // role:"user"
 	}
+	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	tx, err := db.DB.Begin()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -53,12 +58,6 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		return
 	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		tx.Rollback()
-		return
-	}
-	HashedPW, err := bcrypt.GenerateFromPassword([]byte(new.Password), bcrypt.MinCost)
-	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
 		return
