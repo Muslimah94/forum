@@ -16,3 +16,7 @@
 Will be implemented for ADVANCED FEATURES (optional task):
 /api/profile?id= [GET]
 /api/profile?id= [PUT]
+/api/post?id= [PUT] edit post
+/api/comment?id= [PUT] edit comment
+/api/post?id= [DELETE] delete post
+/api/comment?id= [DELETE] delete comment
