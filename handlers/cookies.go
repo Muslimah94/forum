@@ -53,7 +53,7 @@ func CheckCookie(r *http.Request, exisSes models.Session) bool {
 // GetUserIDBySession ...
 func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
 	cookie, err := r.Cookie("logged-in_forum")
-	if err != http.ErrNoCookie {
+	if err == http.ErrNoCookie {
 		return 0, err
 	}
 	UUID := cookie.Value
@@ -61,6 +61,7 @@ func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return id, nil
 }
 
