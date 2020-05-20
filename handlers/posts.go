@@ -23,6 +23,7 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
 		return
 	}
+	//--------FILTERING ---------------------------------------------
 	c, ok := r.URL.Query()["created"]
 	if !ok || len(c[0]) < 1 {
 		log.Println("GetAllPosts: Url Param 'liked' is missing")
@@ -149,7 +150,6 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 				pDTO.UserReaction = reaction.Type
 			}
 		}
-
 		DTOs = append(DTOs, pDTO)
 	}
 	SendJSON(w, &DTOs)
