@@ -10,24 +10,24 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// CreateSession ...
-func (db *DataBase) CreateSession(new models.Session, tx *sql.Tx) (uuid.UUID, error) {
+// InsertSession ...
+func (db *DataBase) InsertSession(new models.Session, tx *sql.Tx) (uuid.UUID, error) {
 	var err error
 	new.UUID, err = uuid.NewV4()
 	if err != nil {
-		log.Println("CreateSession uuid.NewV4:", err)
+		log.Println("InsertSession uuid.NewV4:", err)
 		return new.UUID, err
 	}
 	new.ExpDate = time.Now().Add(time.Hour * 1).Unix()
 	st, err := tx.Prepare(`INSERT INTO Sessions (UserID, UUID, ExpDate) VALUES (?,?,?)`)
 	defer st.Close()
 	if err != nil {
-		fmt.Println("CreateSession Prepare", err)
+		fmt.Println("InsertSession Prepare", err)
 		return new.UUID, err
 	}
 	_, err = st.Exec(new.UserID, new.UUID, new.ExpDate)
 	if err != nil {
-		fmt.Println("CreateSession Exec", err)
+		fmt.Println("InsertSession Exec", err)
 		return new.UUID, err
 	}
 	return new.UUID, err
@@ -40,17 +40,17 @@ func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error
 	rows, err := db.DB.Query(`SELECT ID, UserID, UUID, ExpDate FROM Sessions WHERE UserID = ?`, new.UserID)
 	defer rows.Close()
 	if err != nil {
-		fmt.Println("SelectUserSessions Query:", err)
+		fmt.Println("SelectUserSession Query:", err)
 		return existing, err
 	}
 	if rows.Next() {
 		err = rows.Scan(&existing.ID, &existing.UserID, &existing.UUID, &existing.ExpDate)
 		if err != nil {
-			fmt.Println("SelectUserSessions rows.Scan:", err)
+			fmt.Println("SelectUserSession rows.Scan:", err)
 		}
 	}
 	if err = rows.Err(); err != nil {
-		fmt.Println("SelectUserSessions rows:", err)
+		fmt.Println("SelectUserSession rows:", err)
 		return existing, err
 	}
 	return existing, nil
@@ -60,28 +60,28 @@ func (db *DataBase) SelectUserSession(new models.Session) (models.Session, error
 func (db *DataBase) UpdateSession(new models.Session, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE Sessions SET UUID = ?, ExpDate = ? WHERE UserID = ?`)
 	if err != nil {
-		fmt.Println("UpdateSession Prepare[comment]", err)
+		fmt.Println("UpdateSession Prepare", err)
 		return err
 	}
 	_, err = stmt.Exec(new.UUID, new.ExpDate, new.UserID)
 	if err != nil {
-		fmt.Println("UpdateSession Exec[comment]", err)
+		fmt.Println("UpdateSession Exec", err)
 		return err
 	}
 	defer stmt.Close()
 	return err
 }
 
-// UpdateSession ...
+// UpdateSessionDate ...
 func (db *DataBase) UpdateSessionDate(new models.Session, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE Sessions SET ExpDate = ? WHERE UserID = ?`)
 	if err != nil {
-		fmt.Println("UpdateSession Prepare[comment]", err)
+		fmt.Println("UpdateSessionDate Prepare", err)
 		return err
 	}
 	_, err = stmt.Exec(new.ExpDate, new.UserID)
 	if err != nil {
-		fmt.Println("UpdateSession Exec[comment]", err)
+		fmt.Println("UpdateSessionDate Exec", err)
 		return err
 	}
 	defer stmt.Close()

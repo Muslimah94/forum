@@ -173,7 +173,7 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Cannot start transaction")
 		return
 	}
-	ID, err := db.CreatePost(post, tx)
+	ID, err := db.InsertPost(post, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()

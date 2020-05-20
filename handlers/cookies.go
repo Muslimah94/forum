@@ -36,15 +36,15 @@ func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 func CheckCookie(r *http.Request, exisSes models.Session) bool {
 	cookie, err := r.Cookie("logged-in_forum")
 	if err == http.ErrNoCookie {
-		fmt.Println("no cookie")
+		fmt.Println("Check cookie", err)
 		return false
 	}
 	if cookie.Value == "" {
-		fmt.Println("empty value cookie")
+		fmt.Println("Check cookie: cookie.Value is empty")
 		return false
 	}
 	if cookie.Value != exisSes.UUID.String() {
-		fmt.Println("doesn't match uuid")
+		fmt.Println("Check cookie: UUID doesn't match")
 		return false
 	}
 	return true

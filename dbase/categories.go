@@ -78,7 +78,7 @@ func (db *DataBase) ReturnCategories() ([]string, error) {
 		cat = append(cat, a)
 	}
 	if err = rows.Err(); err != nil {
-		fmt.Println("SelectCategories rows:", err)
+		fmt.Println("ReturnCategories rows:", err)
 		return nil, err
 	}
 	return cat, nil

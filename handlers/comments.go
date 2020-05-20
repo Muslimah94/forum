@@ -23,7 +23,6 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	//----------ENTITY---------------------------------------------------------------
 	comments, err := db.SelectComments(postID)
 	if err != nil {
@@ -62,7 +61,6 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		reaction, err := db.SelectReaction(models.Reaction{
 			AuthorID:  id,
 			CommentID: user.ID,
@@ -74,7 +72,6 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 		}
 		cDTOs = append(cDTOs, dto)
 	}
-
 	SendJSON(w, &cDTOs)
 }
 
@@ -95,5 +92,9 @@ func NewComment(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	c.AuthorID = id
 	c.PostID = new.PostID
 	c.Content = new.Content
-	db.CreateComment(c)
+	err = db.InsertComment(c)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }

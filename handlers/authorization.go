@@ -13,7 +13,6 @@ import (
 
 // RegisterLogin ...
 func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
-	//-------DTO----------------------------------------
 	var new models.RegisterUser
 	err := ReceiveJSON(r, &new)
 	if err != nil {
@@ -84,7 +83,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session := models.Session{UserID: int(ID)}
-	session.UUID, err = db.CreateSession(session, tx)
+	session.UUID, err = db.InsertSession(session, tx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		tx.Rollback()
@@ -148,7 +147,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(exisSes)
 	if exisSes.ID == 0 { // if there's no session, we'll create it and set cookie
-		exisSes.UUID, err = db.CreateSession(session, tx)
+		exisSes.UUID, err = db.InsertSession(session, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -159,14 +158,12 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	exisSes.ExpDate = time.Now().Add(time.Hour * 1).Unix()
 	if CheckCookie(r, exisSes) { //if browser is the same ExpDate need to be updated only
-		fmt.Println("same cookie")
 		err = db.UpdateSessionDate(exisSes, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else { // if browser isn't the same, session need to be updated totally
-		fmt.Println("not the same cookie")
 		exisSes.UUID, err = uuid.NewV4()
 		err = db.UpdateSession(exisSes, tx)
 		if err != nil {
@@ -175,10 +172,9 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	tx.Commit()
-	err = SetCookie(w, r, exisSes) // Cookie with updated life time should be set
+	err = SetCookie(w, r, exisSes) // Cookie with updated life time and/or new UUID should be set
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 }

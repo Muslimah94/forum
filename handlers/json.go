@@ -23,7 +23,7 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 func ReceiveJSON(r *http.Request, v interface{}) error {
 	err := json.NewDecoder(r.Body).Decode(v)
 	if err != nil {
-		fmt.Println("ReceiveJSON: Failed to Decode", err)
+		fmt.Println("ReceiveJSON Failed to Decode", err)
 		return err
 	}
 	return err

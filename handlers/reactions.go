@@ -33,7 +33,7 @@ func NewReaction(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if existing.AuthorID == 0 {
-		db.CreateReaction(rea)
+		db.InsertReaction(rea)
 	} else {
 		if existing.Type != rDTO.Type {
 			db.UpdateReaction(rea)

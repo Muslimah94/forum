@@ -35,7 +35,7 @@ func (db *DataBase) SelectPosts() ([]models.Post, error) {
 
 }
 
-// SelectPost ...
+// SelectPostByID ...
 func (db *DataBase) SelectPostByID(postID int) (models.Post, error) {
 
 	var p models.Post
@@ -48,47 +48,24 @@ func (db *DataBase) SelectPostByID(postID int) (models.Post, error) {
 	return p, nil
 }
 
-// CreatePost ...
-func (db *DataBase) CreatePost(new models.Post, tx *sql.Tx) (int64, error) {
+// InsertPost ...
+func (db *DataBase) InsertPost(new models.Post, tx *sql.Tx) (int64, error) {
 	var n int64
 	d := time.Now().Unix()
 	st, err := tx.Prepare(`INSERT INTO Posts (AuthorID, Title, Content, CreationDate) VALUES (?,?,?,?)`)
 	defer st.Close()
 	if err != nil {
-		fmt.Println("CreatePost Prepare", err)
+		fmt.Println("InsertPost Prepare", err)
 		return n, err
 	}
 	res, err := st.Exec(new.AuthorID, new.Title, new.Content, d)
 	if err != nil {
-		fmt.Println("CreatePost Exec", err)
+		fmt.Println("InsertPost Exec", err)
 		return n, err
 	}
 	n, err = res.LastInsertId()
 	if err != nil {
-		fmt.Println("InsertUser Exec", err)
-		return n, err
-	}
-	return n, nil
-}
-
-// ReturnLastPostID ...
-func (db *DataBase) ReturnLastPostID() (int, error) {
-	n := 0
-	rows, err := db.DB.Query(`SELECT ID FROM Posts ORDER BY ID DESC LIMIT 1`)
-	defer rows.Close()
-	if err != nil {
-		fmt.Println("ReturnLastPostID Query:", err)
-		return n, err
-	}
-	for rows.Next() {
-		err = rows.Scan(&n)
-		if err != nil {
-			fmt.Println("ReturnLastPostID rows.Scan:", err)
-			continue
-		}
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println("ReturnLastPostID rows:", err)
+		fmt.Println("InsertPost LastInsertID", err)
 		return n, err
 	}
 	return n, nil

@@ -50,31 +50,31 @@ func (db *DataBase) CountReactionsToComment(t int, commentID int) (int, error) {
 	return num, nil
 }
 
-// CreateReaction ...
-func (db *DataBase) CreateReaction(new models.Reaction) error {
+// InsertReaction ...
+func (db *DataBase) InsertReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {
 		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, CommentID) VALUES (?,?,?)`)
 		defer st.Close()
 		if err != nil {
-			fmt.Println("CreateReaction Prepare", err)
+			fmt.Println("InsertReaction[comment] Prepare", err)
 			return err
 		}
 		_, err = st.Exec(new.AuthorID, new.Type, new.CommentID)
 		if err != nil {
-			fmt.Println("CreateReaction Exec", err)
+			fmt.Println("InsertReaction[comment] Exec", err)
 			return err
 		}
 	} else {
 		st, err := db.DB.Prepare(`INSERT INTO Reactions (AuthorID, Type, PostID) VALUES (?,?,?)`)
 		defer st.Close()
 		if err != nil {
-			fmt.Println("CreateReaction Prepare", err)
+			fmt.Println("InsertReaction[post] Prepare", err)
 			return err
 		}
 		_, err = st.Exec(new.AuthorID, new.Type, new.PostID)
 		if err != nil {
-			fmt.Println("CreateReaction Exec", err)
+			fmt.Println("InsertReaction[post] Exec", err)
 			return err
 		}
 	}
@@ -83,7 +83,6 @@ func (db *DataBase) CreateReaction(new models.Reaction) error {
 
 // SelectReaction ...
 func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error) {
-	fmt.Println("Select reaction")
 	var existing models.Reaction
 	if new.PostID == 0 {
 		rows, err := db.DB.Query(`SELECT ID, Type, AuthorID, CommentID FROM Reactions WHERE AuthorID = ? AND CommentID = ?`, new.AuthorID, new.CommentID)
@@ -120,7 +119,6 @@ func (db *DataBase) SelectReaction(new models.Reaction) (models.Reaction, error)
 			return existing, err
 		}
 	}
-	fmt.Println("existing:", existing)
 	return existing, nil
 }
 
@@ -141,7 +139,6 @@ func (db *DataBase) UpdateReaction(new models.Reaction) error {
 		defer stmt.Close()
 	} else {
 		stmt, err := db.DB.Prepare(`UPDATE Reactions SET type = ? WHERE AuthorID = ? AND PostID = ?`)
-
 		if err != nil {
 			fmt.Println("UpdateReaction Prepare[post]", err)
 			return err
@@ -156,6 +153,7 @@ func (db *DataBase) UpdateReaction(new models.Reaction) error {
 	return nil
 }
 
+// DeleteReaction ...
 func (db *DataBase) DeleteReaction(new models.Reaction) error {
 
 	if new.PostID == 0 {

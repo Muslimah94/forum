@@ -7,8 +7,8 @@ import (
 	models "../models"
 )
 
+// InsertUserCredentials ...
 func (db *DataBase) InsertUserCredentials(new models.Credentials, tx *sql.Tx) error {
-	fmt.Println("InsertUserCREDENTIALS")
 	st, err := tx.Prepare(`INSERT INTO Credentials (ID, Email, HashedPassword) VALUES (?,?,?)`)
 	defer st.Close()
 	if err != nil {
@@ -23,6 +23,7 @@ func (db *DataBase) InsertUserCredentials(new models.Credentials, tx *sql.Tx) er
 	return nil
 }
 
+// SelectUserCredentials ...
 func (db *DataBase) SelectUserCredentials(new models.Credentials) (models.Credentials, error) {
 
 	var existing models.Credentials
