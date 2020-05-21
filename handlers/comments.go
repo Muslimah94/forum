@@ -14,7 +14,7 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 	p, ok := r.URL.Query()["post_id"]
 	if !ok || len(p[0]) < 1 {
 		log.Println("GetCommentsByPostID: Url Param 'post_id' is missing")
-		http.Error(w, "Internal Server Error, please try again later", http.StatusInternalServerError)
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
 		return
 	}
 	postID, err := strconv.Atoi(p[0])

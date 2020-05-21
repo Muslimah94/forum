@@ -20,11 +20,16 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	l, ok := r.URL.Query()["liked"]
 	if !ok || len(l[0]) < 1 {
 		log.Println("GetAllPosts: Url Param 'liked' is missing")
-		all = true
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
+		return
+		l = append(l, "0")
 	}
 	c, ok := r.URL.Query()["created"]
 	if !ok || len(c[0]) < 1 {
-		log.Println("GetAllPosts: Url Param 'liked' is missing")
+		log.Println("GetAllPosts: Url Param 'created' is missing")
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
+		return
+		c = append(c, "0")
 	}
 	//--------FILTERING ---------------------------------------------
 	UserID, err := GetUserIDBySession(db, r)
@@ -163,7 +168,7 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	postID, err := strconv.Atoi(p[0])
 	if err != nil {
 		log.Println("GetPostByID Atoi:", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
 		return
 	}
 	//----------ENTITY---------------------------------------------------------------
