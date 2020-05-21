@@ -66,15 +66,15 @@ func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
 }
 
 // DeleteCookie ...
-// func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
-// 	cookie, err := r.Cookie("logged-in_forum")
-// 	if err != nil {
-// 		fmt.Println("DeleteCookie:", err)
-// 		return err
-// 	}
-// 	cookie = &http.Cookie{
-// 		MaxAge: -1,
-// 	}
-// 	http.SetCookie(w, cookie)
-// 	return nil
-// }
+func DeleteCookie(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie("logged-in_forum")
+	if err != nil {
+		fmt.Println("DeleteCookie:", err)
+		return err
+	}
+	cookie = &http.Cookie{
+		MaxAge: -1,
+	}
+	http.SetCookie(w, cookie)
+	return nil
+}

@@ -22,14 +22,12 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		log.Println("GetAllPosts: Url Param 'liked' is missing")
 		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
 		return
-		l = append(l, "0")
 	}
 	c, ok := r.URL.Query()["created"]
 	if !ok || len(c[0]) < 1 {
 		log.Println("GetAllPosts: Url Param 'created' is missing")
 		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
 		return
-		c = append(c, "0")
 	}
 	//--------FILTERING ---------------------------------------------
 	UserID, err := GetUserIDBySession(db, r)
@@ -42,14 +40,14 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	if (err != nil || UserID == 0) && liked {
 		SendJSON(w, models.Error{
-			Status:      "Failed",
+			Status:      "Unathorized",
 			Description: "Please authorize to see your liked posts",
 		})
 		return
 	}
 	if (err != nil || UserID == 0) && created {
 		SendJSON(w, models.Error{
-			Status:      "Failed",
+			Status:      "Unathorized",
 			Description: "Please authorize to see your created posts",
 		})
 		return

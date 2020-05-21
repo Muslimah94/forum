@@ -81,7 +81,7 @@ func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
 // SelectUserBySession ...
 func (db *DataBase) SelectUserIDBySession(UUID string) (int, error) {
 	var id int
-	rows, err := db.DB.Query(`SELECT ID FROM Sessions WHERE UUID = ?`, UUID)
+	rows, err := db.DB.Query(`SELECT UserID FROM Sessions WHERE UUID = ?`, UUID)
 	if err != nil {
 		fmt.Println("SelectUserBySession db.Query ERROR:", err)
 		return id, err

@@ -89,6 +89,45 @@ func (db *DataBase) UpdateSessionDate(new models.Session, tx *sql.Tx) error {
 }
 
 // CompareExpDate ...
-// func (db *DataBase) CompareExpDate(new models.Session) bool {
-// 	return new.ExpDate < time.Now().Unix()
-// }
+func (db *DataBase) CompareExpDate(new models.Session) bool {
+	return new.ExpDate > time.Now().Unix()
+}
+
+// SelectSession ..
+func (db *DataBase) SelectSession(UUID string) (models.Session, error) {
+	var existing models.Session
+	rows, err := db.DB.Query(`SELECT ID, UserID, UUID, ExpDate FROM Sessions WHERE UUID = ?`, UUID)
+	if err != nil {
+		fmt.Println("SelectUserSession Query:", err)
+		return existing, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		err = rows.Scan(&existing.ID, &existing.UserID, &existing.UUID, &existing.ExpDate)
+		if err != nil {
+			fmt.Println("SelectUserSession rows.Scan:", err)
+		}
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectUserSession rows:", err)
+		return existing, err
+	}
+	return existing, nil
+}
+
+// DeleteSession ..
+func (db *DataBase) DeleteSession(UUID string) error {
+
+	stmt, err := db.DB.Prepare(`DELETE FROM Sessions WHERE UUID = ?`)
+	if err != nil {
+		fmt.Println("DeleteUserSession Prepare:", err)
+		return err
+	}
+	_, err = stmt.Exec(UUID)
+	if err != nil {
+		fmt.Println("DeleteUserSession Exec", err)
+		return err
+	}
+	defer stmt.Close()
+	return err
+}

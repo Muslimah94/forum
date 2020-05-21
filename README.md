@@ -2,7 +2,7 @@
 
 /api/register [POST] user registration to forum
 /api/login [POST] //nickname, password ()
-/api/posts [POST] create new post
+/api/addpost [POST] create new post
 /api/posts?liked=0&created=0 [GET] get all posts
 /api/posts?liked=1&created=0 [GET] get liked posts
 /api/posts?liked=0&created=1 [GET] get created posts
