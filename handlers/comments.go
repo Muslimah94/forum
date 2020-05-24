@@ -29,11 +29,6 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	id, err := GetUserIDBySession(db, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 	//-------DTO PREPARATION---------------------------------------------------------
 	cDTOs := []models.CommentDTO{}
 	for i := 0; i < len(comments); i++ {
@@ -61,11 +56,16 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		id, err := GetUserIDBySession(db, r)
+		if err != nil {
+			SendJSON(w, &cDTOs)
+			return
+		}
 		reaction, err := db.SelectReaction(models.Reaction{
 			AuthorID:  id,
 			CommentID: user.ID,
 		})
-		if reaction.AuthorID == 0 {
+		if reaction.AuthorID == 0 || err != nil {
 			dto.UserReaction = -1
 		} else {
 			dto.UserReaction = reaction.Type

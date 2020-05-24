@@ -216,14 +216,14 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 
 	id, err := GetUserIDBySession(db, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		SendJSON(w, &postDTO)
 		return
 	}
 	reaction, err := db.SelectReaction(models.Reaction{
 		AuthorID: id,
 		PostID:   post.ID,
 	})
-	if reaction.AuthorID == 0 {
+	if reaction.AuthorID == 0 || err != nil {
 		postDTO.UserReaction = -1
 	} else {
 		postDTO.UserReaction = reaction.Type
