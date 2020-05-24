@@ -12,15 +12,6 @@ import (
 // SetCookie ...
 func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 	cookie, err := r.Cookie("logged-in_forum")
-	if err != nil {
-		cookie = &http.Cookie{
-			Name:    "logged-in_forum",
-			Value:   s.UUID.String(),
-			Expires: time.Now().Add(time.Hour * 1),
-			//Secure:   true,
-			HttpOnly: true,
-		}
-	}
 	cookie = &http.Cookie{
 		Name:    "logged-in_forum",
 		Value:   s.UUID.String(),

@@ -57,7 +57,6 @@ func (a *app) RequireAuthMiddleware(myHandleFunc hendler) http.HandlerFunc {
 		}
 		if session.ID == 0 {
 			handlers.DeleteCookie(w, r)
-			fmt.Println("dsfdf")
 			handlers.SendJSON(w, models.Error{
 				Status:      "Unauthorized",
 				Description: "Please authorize",
