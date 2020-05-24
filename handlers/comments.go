@@ -58,8 +58,8 @@ func GetCommentsByPostID(db *dbase.DataBase, w http.ResponseWriter, r *http.Requ
 		}
 		id, err := GetUserIDBySession(db, r)
 		if err != nil {
-			SendJSON(w, &cDTOs)
-			return
+			cDTOs = append(cDTOs, dto)
+			continue
 		}
 		reaction, err := db.SelectReaction(models.Reaction{
 			AuthorID:  id,
