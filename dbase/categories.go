@@ -59,6 +59,32 @@ func (db *DataBase) SelectCategoriesByPostID(id int) ([]models.PostCat, error) {
 	return pc, nil
 }
 
+// SelectPostIDsByCategory ...
+func (db *DataBase) SelectPostIDsByCategory(category string) ([]models.PostCat, error) {
+	rows, err := db.DB.Query(`SELECT PostCats.PostID, CategoryID, Categories.Name FROM PostCats INNER JOIN
+	Categories ON PostCats.CategoryID = Categories.ID WHERE Categories.Name = ?`, category)
+	if err != nil {
+		fmt.Println("SelectPostIDsByCategory Query:", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var pc []models.PostCat
+	for rows.Next() {
+		var p models.PostCat
+		err = rows.Scan(&p.PostID, &p.CategoryID, &p.CategoryName)
+		if err != nil {
+			fmt.Println("SelectPostIDsByCategory rows.Scan:", err)
+			continue
+		}
+		pc = append(pc, p)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("SelectPostIDsByCategory rows:", err)
+		return nil, err
+	}
+	return pc, nil
+}
+
 // ReturnCategories ...
 func (db *DataBase) ReturnCategories() ([]string, error) {
 	rows, err := db.DB.Query(`SELECT Name FROM Categories`)

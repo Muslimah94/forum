@@ -6,6 +6,7 @@
 /api/posts?liked=0&created=0 [GET] get all posts
 /api/posts?liked=1&created=0 [GET] get liked posts
 /api/posts?liked=0&created=1 [GET] get created posts
+/api/postsby?category= [GET] get posts by category name
 /api/post?id= [GET] get post by post id
 /api/comment [POST] write a new comment to post by post id
 /api/comments?post_id= [GET] get all comments to post by post id

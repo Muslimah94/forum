@@ -271,3 +271,108 @@ func NewPost(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	}
 	tx.Commit()
 }
+
+// GetPostsByCategory ...
+func GetPostsByCategory(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	cat, ok := r.URL.Query()["category"]
+	if !ok || len(cat[0]) < 1 {
+		log.Println("GetPostsByCategory: Url Param 'category' is missing")
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
+		return
+	}
+	PC, err := db.SelectPostIDsByCategory(cat[0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	posts := []models.Post{}
+	for i := 0; i < len(PC); i++ {
+		p, err := db.SelectPostByID(PC[i].PostID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		posts = append(posts, p)
+	}
+	pc, err := db.SelectCategories()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	users, err := db.SelectUsers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Copying again -_-
+	DTOs := []models.PostDTO{}
+	for i := 0; i < len(posts); i++ {
+		pDTO := models.PostDTO{}
+		// post id ----------
+		pDTO.ID = posts[i].ID
+		for _, v := range users {
+			if v.ID == posts[i].AuthorID {
+				a := models.AuthorDTO{}
+				a.ID = v.ID
+				a.Nickname = v.Nickname
+				pDTO.Author = a
+			}
+		}
+		// post title -----------
+		pDTO.Title = posts[i].Title
+		// post content ---------
+		pDTO.Content = posts[i].Content
+		// post categories ------
+		ar := []string{}
+		for j := 0; j < len(pc); j++ {
+			if posts[i].ID == pc[j].PostID {
+				ar = append(ar, pc[j].CategoryName)
+			}
+		}
+		pDTO.Categories = ar
+		// number of likes ------
+		pDTO.Likes, err = db.CountReactionsToPost(1, posts[i].ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// number of dislikes ---
+		pDTO.Dislikes, err = db.CountReactionsToPost(0, posts[i].ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// number of comments ---
+		pDTO.Comments, err = db.CountComments(posts[i].ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// post creation date ---
+		pDTO.CreationDate = posts[i].CreationDate
+
+		// reaction of session user to post
+		UserID, err := GetUserIDBySession(db, r)
+		if err != nil || UserID == 0 {
+			pDTO.UserReaction = -1
+		} else {
+			reaction, err := db.SelectReaction(models.Reaction{
+				AuthorID: UserID,
+				PostID:   posts[i].ID,
+			})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			if reaction.AuthorID == 0 {
+				pDTO.UserReaction = -1
+			} else {
+				pDTO.UserReaction = reaction.Type
+			}
+		}
+		DTOs = append(DTOs, pDTO)
+	}
+	SendJSON(w, &DTOs)
+
+}

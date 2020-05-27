@@ -29,6 +29,7 @@ func main() {
 	http.HandleFunc("/api/posts", a.NotRequireAuthMiddleware(handlers.GetAllPosts))
 	http.HandleFunc("/api/addpost", a.RequireAuthMiddleware(handlers.NewPost))
 	http.HandleFunc("/api/post", a.NotRequireAuthMiddleware(handlers.GetPostByID))
+	http.HandleFunc("/api/postsby", a.NotRequireAuthMiddleware(handlers.GetPostsByCategory))
 	http.HandleFunc("/api/comment", a.RequireAuthMiddleware(handlers.NewComment))
 	http.HandleFunc("/api/comments", a.NotRequireAuthMiddleware(handlers.GetCommentsByPostID))
 	http.HandleFunc("/api/categories", a.NotRequireAuthMiddleware(handlers.GetCategories))
