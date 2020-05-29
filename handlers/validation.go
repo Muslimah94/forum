@@ -51,5 +51,8 @@ func validEmail(s string) bool {
 			check = true
 		}
 	}
-	return check
+	if !check {
+		return false
+	}
+	return true
 }
