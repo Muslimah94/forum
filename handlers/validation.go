@@ -41,17 +41,17 @@ func validEmail(s string) bool {
 	if len(s) < 5 || len(s) > 20 {
 		return false
 	}
-	check := false
-	validstr := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`-=~!@#$%^&*()_+\\|/? {}[]"
+	at := false
+	validstr := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.@"
 	for _, r := range s {
 		if !strings.Contains(validstr, string(r)) {
 			return false
 		}
 		if r == '@' {
-			check = true
+			at = true
 		}
 	}
-	if !check {
+	if !at {
 		return false
 	}
 	return true
