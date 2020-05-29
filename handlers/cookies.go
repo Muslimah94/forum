@@ -16,8 +16,9 @@ func SetCookie(w http.ResponseWriter, r *http.Request, s models.Session) error {
 		Name:    "logged-in_forum",
 		Value:   s.UUID.String(),
 		Expires: time.Now().Add(time.Hour * 1),
+		Path:    "/",
 		//Secure:   true,
-		HttpOnly: true,
+		//HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
 	return nil

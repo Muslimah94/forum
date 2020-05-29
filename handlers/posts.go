@@ -149,6 +149,8 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			} else {
 				pDTO.UserReaction = reaction.Type
 			}
+		} else {
+			pDTO.UserReaction = -1
 		}
 		DTOs = append(DTOs, pDTO)
 	}

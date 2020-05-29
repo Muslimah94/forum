@@ -33,6 +33,13 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	if !validEmail(new.Email) {
+		SendJSON(w, models.Error{
+			Status:      "Failed",
+			Description: "Allowed email should contain at least 1 the at sign \"@\". Valid symbols are: the Latin alphabet, numbers and given special characters: `-=~!@#$%^&*()_+\\|/? {}[]",
+		})
+		return
+	}
 	//--------ENTITY for Users table----------------------
 	user := models.User{
 		Nickname: new.Nickname,
