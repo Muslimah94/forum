@@ -218,6 +218,7 @@ func GetPostByID(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 
 	id, err := GetUserIDBySession(db, r)
 	if err != nil {
+		postDTO.UserReaction = -1
 		SendJSON(w, &postDTO)
 		return
 	}
