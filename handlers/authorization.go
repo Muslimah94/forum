@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	dbase "../dbase"
-	models "../models"
+	"github.com/Muslimah94/forum/dbase"
+	"github.com/Muslimah94/forum/models"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -170,7 +170,7 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else { // if browser isn't the same, session need to be updated totally
-		exisSes.UUID, err = uuid.NewV4()
+		exisSes.UUID = uuid.NewV4()
 		err = db.UpdateSession(exisSes, tx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

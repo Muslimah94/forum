@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	models "../models"
+	"github.com/Muslimah94/forum/models"
 )
 
 // InsertUserCredentials ...

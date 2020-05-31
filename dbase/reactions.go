@@ -3,7 +3,7 @@ package dbase
 import (
 	"fmt"
 
-	models "../models"
+	"github.com/Muslimah94/forum/models"
 )
 
 // CountReactionsToPost ...

@@ -6,14 +6,14 @@ import (
 	"log"
 	"time"
 
-	models "../models"
+	"github.com/Muslimah94/forum/models"
 	uuid "github.com/satori/go.uuid"
 )
 
 // InsertSession ...
 func (db *DataBase) InsertSession(new models.Session, tx *sql.Tx) (uuid.UUID, error) {
 	var err error
-	new.UUID, err = uuid.NewV4()
+	new.UUID = uuid.NewV4()
 	if err != nil {
 		log.Println("InsertSession uuid.NewV4:", err)
 		return new.UUID, err

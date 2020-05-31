@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	models "../models"
+	"github.com/Muslimah94/forum/models"
 )
 
 // SelectPosts ...

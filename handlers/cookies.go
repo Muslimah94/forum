@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	dbase "../dbase"
-	models "../models"
+	"github.com/Muslimah94/forum/dbase"
+	"github.com/Muslimah94/forum/models"
 )
 
 // SetCookie ...

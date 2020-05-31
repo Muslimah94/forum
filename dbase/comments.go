@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	models "../models"
+	"github.com/Muslimah94/forum/models"
 )
 
 // CountComments ...

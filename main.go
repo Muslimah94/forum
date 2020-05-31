@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	dbase "./dbase"
-	"./handlers"
-	models "./models"
+	"github.com/Muslimah94/forum/dbase"
+	"github.com/Muslimah94/forum/handlers"
+	"github.com/Muslimah94/forum/models"
 )
 
 type hendler func(db *dbase.DataBase, w http.ResponseWriter, r *http.Request)

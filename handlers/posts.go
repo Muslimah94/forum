@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	dbase "../dbase"
-	models "../models"
+	"github.com/Muslimah94/forum/dbase"
+	"github.com/Muslimah94/forum/models"
 )
 
 // GetAllPosts ...
