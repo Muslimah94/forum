@@ -53,7 +53,6 @@ func GetUserIDBySession(db *dbase.DataBase, r *http.Request) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return id, nil
 }
 

@@ -36,7 +36,7 @@ func RegisterLogin(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	if !validEmail(new.Email) {
 		SendJSON(w, models.Error{
 			Status:      "Failed",
-			Description: "Allowed email should contain at least 1 the at sign \"@\". Valid symbols are: the Latin alphabet, numbers and given special characters: `-=~!@#$%^&*()_+\\|/? {}[]",
+			Description: "Invaid email address, try another one or check yours for mistakes",
 		})
 		return
 	}
@@ -183,4 +183,20 @@ func LogIn(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+// LogOut ...
+func LogOut(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("logged-in_forum")
+	if err != nil {
+		fmt.Println("LogOut, cookie:", err)
+		return
+	}
+	err = db.DeleteSession(cookie.Value)
+	if err != nil {
+		fmt.Println("LogOut, cannot delete session:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	return
 }

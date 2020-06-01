@@ -34,6 +34,7 @@ func main() {
 	http.HandleFunc("/api/comments", a.NotRequireAuthMiddleware(handlers.GetCommentsByPostID))
 	http.HandleFunc("/api/categories", a.NotRequireAuthMiddleware(handlers.GetCategories))
 	http.HandleFunc("/api/reaction", a.RequireAuthMiddleware(handlers.NewReaction))
+	http.HandleFunc("/api/logout", a.NotRequireAuthMiddleware(handlers.LogOut))
 
 	fmt.Println("Server is listening to port :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))

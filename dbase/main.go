@@ -3,7 +3,6 @@ package dbase
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
@@ -87,8 +86,7 @@ func Create(DBname string) (*DataBase, error) {
 		fmt.Println("Failed to create tables:", err)
 		return nil, err
 	}
-	if !Exists("dbase/forumDB") {
-		_, err = db.Exec(`
+	_, err = db.Exec(`
 		INSERT INTO "main"."Roles"
 			("Name")
 		VALUES
@@ -102,20 +100,9 @@ func Create(DBname string) (*DataBase, error) {
 			("System dev"),
 			("Graphics"),
 			("Algorithms");`)
-		if err != nil {
-			fmt.Println("Failed to insert roles and categories:", err)
-			return nil, err
-		}
+	if err != nil {
+		fmt.Println("Roles and categories succesfully added")
 	}
 	database := DataBase{DB: db}
 	return &database, nil
-}
-
-func Exists(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
 }

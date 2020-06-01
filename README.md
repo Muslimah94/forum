@@ -12,7 +12,7 @@
 /api/comments?post_id= [GET] get all comments to post by post id
 /api/categories [GET] get names of categories
 /api/reaction [POST] add like/dislike to DB (like type=1, dislike type=0)
-
+/api/logout [GET] log out
 
 
 Will be implemented for ADVANCED FEATURES (optional task):
