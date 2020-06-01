@@ -16,7 +16,7 @@ type DataBase struct {
 // Create function creates or opens DB (if it's already exists)
 func Create(DBname string) (*DataBase, error) {
 
-	db, err := sql.Open("sqlite3", "./dbase/"+DBname)
+	db, err := sql.Open("sqlite3", "./data/"+DBname)
 	if err != nil {
 		fmt.Println("Create sql.Open:", err)
 		return nil, err
