@@ -3,6 +3,7 @@ package dbase
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
@@ -16,7 +17,7 @@ type DataBase struct {
 // Create function creates or opens DB (if it's already exists)
 func Create(DBname string) (*DataBase, error) {
 
-	db, err := sql.Open("sqlite3", "./"+DBname)
+	db, err := sql.Open("sqlite3", "./dbase/"+DBname)
 	if err != nil {
 		fmt.Println("Create sql.Open:", err)
 		return nil, err
@@ -86,6 +87,35 @@ func Create(DBname string) (*DataBase, error) {
 		fmt.Println("Failed to create tables:", err)
 		return nil, err
 	}
+	if !Exists("dbase/forumDB") {
+		_, err = db.Exec(`
+		INSERT INTO "main"."Roles"
+			("Name")
+		VALUES
+			("admin"),
+			("moderator"),
+			("user");
+		INSERT INTO "main"."Categories"
+			("Name")
+		VALUES
+			("Web & Mobile dev"),
+			("System dev"),
+			("Graphics"),
+			("Algorithms");`)
+		if err != nil {
+			fmt.Println("Failed to insert roles and categories:", err)
+			return nil, err
+		}
+	}
 	database := DataBase{DB: db}
 	return &database, nil
+}
+
+func Exists(name string) bool {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }

@@ -38,6 +38,14 @@ func GetAllPosts(db *dbase.DataBase, w http.ResponseWriter, r *http.Request) {
 	} else if c[0] == "1" {
 		created = true
 	}
+	if _, err := strconv.Atoi(l[0]); err == nil && l[0] != "1" && l[0] != "0" {
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
+		return
+	}
+	if _, err := strconv.Atoi(l[0]); err == nil && c[0] != "1" && c[0] != "0" {
+		http.Error(w, "Bad request, please try again", http.StatusBadRequest)
+		return
+	}
 	if (err != nil || UserID == 0) && liked {
 		SendJSON(w, models.Error{
 			Status:      "Unathorized",

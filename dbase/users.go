@@ -57,7 +57,6 @@ func (db *DataBase) SelectUserByID(userID int) (models.User, error) {
 
 // InsertUser ...
 func (db *DataBase) InsertUser(new models.User, tx *sql.Tx) (int64, error) {
-	fmt.Println("InsertUSER")
 	var n int64
 	st, err := tx.Prepare(`INSERT INTO Users (Nickname, RoleID) VALUES (?,?)`)
 	if err != nil {

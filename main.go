@@ -41,7 +41,6 @@ func main() {
 
 func (a *app) RequireAuthMiddleware(myHandleFunc hendler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.URL)
 		cookie, err := r.Cookie("logged-in_forum")
 		if err == http.ErrNoCookie {
 
