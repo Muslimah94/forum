@@ -101,8 +101,7 @@ func Create(DBname string) (*DataBase, error) {
 			("Angular"),
 			("Ember"),
 			("jQuery"),
-			("Backbone"),
-			("Algorithms");`)
+			("Backbone");`)
 	if err != nil {
 		fmt.Println("Roles and categories succesfully added")
 	}
