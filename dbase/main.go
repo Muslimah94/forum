@@ -96,9 +96,12 @@ func Create(DBname string) (*DataBase, error) {
 		INSERT INTO "main"."Categories"
 			("Name")
 		VALUES
-			("Web & Mobile dev"),
-			("System dev"),
-			("Graphics"),
+			("React"),
+			("Vue"),
+			("Angular"),
+			("Ember"),
+			("jQuery"),
+			("Backbone"),
 			("Algorithms");`)
 	if err != nil {
 		fmt.Println("Roles and categories succesfully added")
