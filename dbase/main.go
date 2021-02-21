@@ -2,7 +2,7 @@ package dbase
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
@@ -14,17 +14,18 @@ type DataBase struct {
 }
 
 // Create function creates or opens DB (if it's already exists)
-func Create(DBname string) (*DataBase, error) {
+func Create(dbName string) (*DataBase, error) {
+	funcName := "Create"
+	log.Printf("[%s] beginning", funcName)
+	defer log.Printf("[%s] termination", funcName)
 
-	db, err := sql.Open("sqlite3", "./data/"+DBname)
+	db, err := sql.Open("sqlite3", "./data/"+dbName)
 	if err != nil {
-		fmt.Println("Create sql.Open:", err)
-		return nil, err
+		log.Fatalf("[%s] sql.Open: %v\n", funcName, err)
 	}
 	_, err = db.Exec(`PRAGMA foreign_keys = ON`)
 	if err != nil {
-		fmt.Println("Failed to set foreign keys in DB:", err)
-		return nil, err
+		log.Fatalf("[%s] failed to set foreign keys in DB: %v\n", funcName, err)
 	}
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS Users (
@@ -81,10 +82,14 @@ func Create(DBname string) (*DataBase, error) {
 		PostID	INTEGER NOT NULL,
 		CategoryID	INTEGER NOT NULL,
 		FOREIGN KEY(CategoryID) REFERENCES Categories(ID) ON DELETE CASCADE,
+		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE);
+	CREATE TABLE IF NOT EXISTS Images (
+		ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		PostID	INTEGER NOT NULL,
+		ImageURL TEXT NOT NULL UNIQUE,
 		FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE);`)
 	if err != nil {
-		fmt.Println("Failed to create tables:", err)
-		return nil, err
+		log.Fatalf("[%s] failed to create tables: %v\n", funcName, err)
 	}
 	_, err = db.Exec(`
 		INSERT INTO "main"."Roles"
@@ -103,7 +108,9 @@ func Create(DBname string) (*DataBase, error) {
 			("jQuery"),
 			("Backbone");`)
 	if err != nil {
-		fmt.Println("Roles and categories succesfully added")
+		if err.Error()[0:6] != "UNIQUE" {
+			log.Printf("[%s] failed to add roles and categories into db: %v\n", funcName, err)
+		}
 	}
 	database := DataBase{DB: db}
 	return &database, nil

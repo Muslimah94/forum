@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	dbase "github.com/Muslimah94/forum/dbase"
-	models "github.com/Muslimah94/forum/models"
+	dbase "github.com/Muslimah94/forum-back/dbase"
+	models "github.com/Muslimah94/forum-back/models"
 )
 
 // NewReaction ...

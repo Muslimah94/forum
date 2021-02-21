@@ -1,0 +1,16 @@
+version: '3.4'
+services:
+  webapi:
+    image: p1r0zhok/forum-backend
+    restart: on-failure
+    container_name: backend
+    hostname: backend
+    ports:
+    - 8080:8080
+    volumes:
+      - ./volumes/data:/app/data
+  frontend:
+    image: p1r0zhok/forum-frontend
+    container_name: frontend
+    ports:
+    - 443:443

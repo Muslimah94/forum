@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Muslimah94/forum/models"
+	"github.com/Muslimah94/forum-back/models"
 )
 
 // SelectCategories ...

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Muslimah94/forum/dbase"
-	"github.com/Muslimah94/forum/models"
+	"github.com/Muslimah94/forum-back/dbase"
+	"github.com/Muslimah94/forum-back/models"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )

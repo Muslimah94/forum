@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Muslimah94/forum/models"
+	"github.com/Muslimah94/forum-back/models"
 	uuid "github.com/satori/go.uuid"
 )
 

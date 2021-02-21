@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Muslimah94/forum/dbase"
-	"github.com/Muslimah94/forum/models"
+	"github.com/Muslimah94/forum-back/dbase"
+	"github.com/Muslimah94/forum-back/models"
 )
 
 // GetCategories ...

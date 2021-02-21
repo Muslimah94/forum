@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"crypto/tls"
 	"log"
 	"net/http"
 
-	"github.com/Muslimah94/forum/dbase"
-	"github.com/Muslimah94/forum/handlers"
-	"github.com/Muslimah94/forum/models"
+	"github.com/Muslimah94/forum-back/dbase"
+	"github.com/Muslimah94/forum-back/handlers"
+	"github.com/Muslimah94/forum-back/models"
 )
 
 type hendler func(db *dbase.DataBase, w http.ResponseWriter, r *http.Request)
@@ -17,13 +17,22 @@ type app struct {
 }
 
 func main() {
-	db, err := dbase.Create("forumDB")
+
+	funcName := "main"
+	log.Printf("[%s] beginning", funcName)
+	defer log.Printf("[%s] termination", funcName)
+
+	// Initializing SQLite database
+	db, err := dbase.Create("forum_database")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[%s] dbase.Create: %v\n", funcName, err)
 	}
+	defer db.DB.Close()
 	a := app{
 		db: db,
 	}
+
+	// Setting handlers to routes
 	http.HandleFunc("/api/register", a.NotRequireAuthMiddleware(handlers.RegisterLogin))
 	http.HandleFunc("/api/login", a.NotRequireAuthMiddleware(handlers.LogIn))
 	http.HandleFunc("/api/posts", a.NotRequireAuthMiddleware(handlers.GetAllPosts))
@@ -36,18 +45,30 @@ func main() {
 	http.HandleFunc("/api/reaction", a.RequireAuthMiddleware(handlers.NewReaction))
 	http.HandleFunc("/api/logout", a.NotRequireAuthMiddleware(handlers.LogOut))
 
-	fmt.Println("Server is listening to port :8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Creating a custom server with TLS
+	const keyURL = "./ssl/forumWebApi.key"
+	const certURL = "./ssl/forumWebApi.crt"
+	port := ":8080"
+	cert, err := tls.LoadX509KeyPair(certURL, keyURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := &http.Server{
+		Addr:      port,
+		Handler:   nil, // use `http.DefaultServeMux`
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{cert}},
+	}
+	log.Printf("[%s] Web API is listening to port %s...\n", funcName, port)
+	log.Fatalf("[%s] ListenAndServeTLS: %v", funcName, s.ListenAndServeTLS("", ""))
 }
 
 func (a *app) RequireAuthMiddleware(myHandleFunc hendler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("logged-in_forum")
 		if err == http.ErrNoCookie {
-
 			handlers.SendJSON(w, models.Error{
 				Status:      "Unauthorized",
-				Description: "Please authorize",
+				Description: "Please, authorize in order to continue.",
 			})
 			return
 		}
@@ -60,7 +81,7 @@ func (a *app) RequireAuthMiddleware(myHandleFunc hendler) http.HandlerFunc {
 			handlers.DeleteCookie(w, r)
 			handlers.SendJSON(w, models.Error{
 				Status:      "Unauthorized",
-				Description: "Please authorize",
+				Description: "Please, authorize in order to continue.",
 			})
 			return
 		}

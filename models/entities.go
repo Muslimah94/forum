@@ -9,6 +9,7 @@ type Post struct {
 	Title        string
 	Content      []byte
 	CreationDate int64
+	ImageID      string
 }
 
 // User ...
@@ -71,4 +72,11 @@ type Credentials struct {
 	ID             int
 	Email          string
 	HashedPassword string
+}
+
+// Images ...
+type Images struct {
+	ID       int
+	PostID   int
+	ImageURL string
 }
